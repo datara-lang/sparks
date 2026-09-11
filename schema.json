@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SparksPackageManifest",
+  "description": "Formal schema for Sparks package manifests (Schema 1)",
+  "type": "object",
+  "required": [
+    "schema",
+    "name",
+    "version",
+    "description",
+    "author",
+    "license",
+    "tarball_url",
+    "sha256"
+  ],
+  "properties": {
+    "schema": {
+      "type": "integer",
+      "enum": [
+        1
+      ],
+      "description": "Sparks specification schema version"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^sparks/[a-zA-Z0-9_-]+$",
+      "description": "Canonical Sparks package identifier (e.g. sparks/crypto_core)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+",
+      "description": "Semantic versioning 2.0.0 string"
+    },
+    "description": {
+      "type": "string",
+      "description": "Concise package summary"
+    },
+    "author": {
+      "type": "string",
+      "description": "Author name and contact"
+    },
+    "license": {
+      "type": "string",
+      "description": "SPDX license identifier (e.g. MIT, Apache-2.0)"
+    },
+    "tarball_url": {
+      "type": "string",
+      "description": "Relative path or HTTPS URL to the POSIX ustar archive"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^(sha256:)?[a-f0-9]{64}$",
+      "description": "Hex-encoded SHA-256 digest of the tarball (64 lowercase hex chars or sha256:...)"
+    },
+    "public_key": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "32-byte hex-encoded ed25519 author public key"
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{128}$",
+      "description": "64-byte hex-encoded ed25519 cryptographic signature of tarball bytes"
+    },
+    "key_id": {
+      "type": "string",
+      "description": "Key identifier for key rotation tracking"
+    },
+    "size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Content size of package in bytes"
+    },
+    "downloads": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total package downloads counter"
+    },
+    "readme": {
+      "type": "string",
+      "description": "Full Markdown documentation and API guide"
+    },
+    "all_versions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of all published versions"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Capability tokens requested by the package (must match tarball sidecar)"
+    },
+    "determinism_receipt": {
+      "type": "object",
+      "properties": {
+        "checksum": {
+          "type": "string"
+        },
+        "compiler": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "verify_command": {
+          "type": "string"
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

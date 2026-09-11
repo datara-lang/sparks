@@ -1,0 +1,30 @@
+# Temporary and test artifacts
+test_sandbox/
+test_dpm_sandbox/
+temp_*
+*.tmp
+*.log
+
+# Environment & Private Keys
+.env
+.env.*
+*.key
+*.pem
+
+# Progress Tracking (Session internal, not committed)
+PROGRESS.md
+ПРОМПТ*.md
+
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Rust / Compiler build artifacts
+target/
+.forgen_cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+

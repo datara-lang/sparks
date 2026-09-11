@@ -1,0 +1,42 @@
+name: Validate Sparks Registry & PR Integrity
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  validate:
+    name: Registry Integrity & Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Validation Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Full Registry Validation
+        run: python scripts/validate_registry.py
+
+      - name: Run CI Negative Fixture Tests
+        run: python tests/test_ci_validation_fixtures.py
+
+      - name: Run Cryptographic Hygiene Tests
+        run: python tests/test_phase0_crypto.py
+
+      - name: Run Publishing & Signature Tests
+        run: python tests/test_publish_and_signatures.py
+
+      - name: Run Web Catalog & XSS Tests
+        run: python tests/test_web_catalog.py
+

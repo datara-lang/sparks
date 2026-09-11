@@ -1,0 +1,14 @@
+# Sparks Registry Code Owners
+# Mandatory reviews for core infrastructure, protocol schema, and package additions
+
+* @waters1ze
+
+# Package manifests and archives
+/packages/ @waters1ze
+/tarballs/ @waters1ze
+/index.json @waters1ze
+
+# Schema & CI specifications
+/schema.json @waters1ze
+/.github/workflows/ @waters1ze
+/scripts/ @waters1ze

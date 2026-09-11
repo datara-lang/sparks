@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sparks: The Capability-Native Package Registry for Datara</title>
+  <meta name="description" content="Decentralized, capability-native, ed25519-signed package registry for the Datara programming language. Statically distributed on GitHub Pages.">
+  <link rel="stylesheet" href="styles.css?v=1.0.5">
+  <style>
+    :root, html, body {
+      color-scheme: dark !important;
+    }
+    /* Enforce custom dark scrollbars globally */
+    html, body, * {
+      scrollbar-width: thin !important;
+      scrollbar-color: #30363d #0d1117 !important;
+    }
+    *::-webkit-scrollbar, ::-webkit-scrollbar {
+      width: 8px !important;
+      height: 8px !important;
+    }
+    *::-webkit-scrollbar-track, ::-webkit-scrollbar-track {
+      background: #0d1117 !important;
+    }
+    *::-webkit-scrollbar-thumb, ::-webkit-scrollbar-thumb {
+      background-color: #30363d !important;
+      border-radius: 4px !important;
+      border: 2px solid #0d1117 !important;
+      background-clip: padding-box !important;
+    }
+    *::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:hover {
+      background-color: #8b949e !important;
+    }
+    pre, code, .preview-code, .modal-body {
+      scrollbar-width: thin !important;
+      scrollbar-color: #30363d #0b0f14 !important;
+    }
+    pre::-webkit-scrollbar, .preview-code::-webkit-scrollbar, .modal-body::-webkit-scrollbar {
+      width: 6px !important;
+      height: 6px !important;
+    }
+    pre::-webkit-scrollbar-track, .preview-code::-webkit-scrollbar-track, .modal-body::-webkit-scrollbar-track {
+      background: #0b0f14 !important;
+    }
+    pre::-webkit-scrollbar-thumb, .preview-code::-webkit-scrollbar-thumb, .modal-body::-webkit-scrollbar-thumb {
+      background-color: #30363d !important;
+      border-radius: 4px !important;
+    }
+    pre::-webkit-scrollbar-thumb:hover, .preview-code::-webkit-scrollbar-thumb:hover, .modal-body::-webkit-scrollbar-thumb:hover {
+      background-color: #8b949e !important;
+    }
+    /* Enforce generator tool layout boundaries */
+    .tool-box {
+      max-width: 100% !important;
+      overflow: hidden !important;
+    }
+    .generator-layout {
+      display: grid !important;
+      grid-template-columns: minmax(300px, 380px) minmax(0, 1fr) !important;
+      gap: 20px !important;
+      align-items: start !important;
+      max-width: 100% !important;
+    }
+    @media (max-width: 860px) {
+      .generator-layout {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+    }
+    .form-pane {
+      min-width: 0 !important;
+      width: 100% !important;
+    }
+    .json-preview-container {
+      min-width: 0 !important;
+      max-width: 100% !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+    .preview-code {
+      max-width: 100% !important;
+      white-space: pre-wrap !important;
+      word-break: break-all !important;
+      overflow-x: auto !important;
+      overflow-y: auto !important;
+      max-height: 380px !important;
+      line-height: 1.45 !important;
+    }
+    .preview-code code {
+      white-space: pre-wrap !important;
+      word-break: break-all !important;
+      display: block !important;
+    }
+    .step-card pre {
+      white-space: pre-wrap !important;
+      word-break: break-all !important;
+      overflow-x: auto !important;
+    }
+  </style>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="nav-container">
+      <div class="brand-wrapper">
+        <div class="brand-logo" title="Datara Sparks Registry">
+          <img src="assets/spark-icon.svg" width="22" height="22" alt="Datara Sparks Logo" style="display: block;">
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">
+            Sparks
+            <span class="badge-ver">v1.0.1</span>
+          </div>
+          <div class="brand-subtitle">Datara Package Registry</div>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <a href="#packages-section" class="nav-link">Packages</a>
+        <a href="#publish-section" class="nav-link">Publish via PR</a>
+        <a href="#protocol-section" class="nav-link">Protocol Spec</a>
+        <a href="https://github.com/waters1ze/datara" target="_blank" rel="noopener" class="nav-link">Datara Core</a>
+        <a href="#publish-section" class="btn-nav-action">Submit Spark</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-pill">
+        <span class="hero-pill-dot"></span>
+        Zero-Service Sparse Registry &bull; Schema 1
+      </div>
+      <h1 class="hero-title">The Capability-Native Package Registry</h1>
+      <p class="hero-desc">
+        Cryptographically signed with ed25519, statically served via GitHub Pages, with compile-time capability sandboxing and byte-for-byte determinism receipts.
+      </p>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val" id="metric-packages-count">5</div>
+          <div class="metric-lbl">Official Sparks</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">100%</div>
+          <div class="metric-lbl">ed25519 Signed</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">O(1)</div>
+          <div class="metric-lbl">Sparse Lookup</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">Static</div>
+          <div class="metric-lbl">GitHub Pages CAS</div>
+        </div>
+      </div>
+
+      <!-- Quick Install Bar -->
+      <div class="cli-quick-bar">
+        <div class="cli-command">
+          <span class="prompt">$ </span>dpm add sparks/crypto_core
+        </div>
+        <button class="btn-copy" onclick="copyText('dpm add sparks/crypto_core')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          Copy
+        </button>
+      </div>
+    </section>
+
+    <!-- Controls Section: Search & Filters -->
+    <section class="controls-section" id="packages-section">
+      <div class="search-row">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" class="search-input" placeholder="Search sparks by name, tag, capability, or author... (Press '/' to focus)" autocomplete="off">
+          <kbd class="search-kbd">/</kbd>
+        </div>
+        <select id="sort-select" class="sort-select">
+          <option value="downloads" selected>Sort: Most Popular</option>
+          <option value="name-asc">Sort: Name (A &rarr; Z)</option>
+          <option value="name-desc">Sort: Name (Z &rarr; A)</option>
+          <option value="size">Sort: Size</option>
+        </select>
+      </div>
+
+      <!-- Category Filter Chips -->
+      <div class="filter-tags-bar" id="filter-tags-bar">
+        <button class="filter-chip active" data-tag="all">All Sparks</button>
+        <button class="filter-chip" data-tag="pure">Pure Compute (0 Caps)</button>
+        <button class="filter-chip" data-tag="math">SIMD &amp; Math</button>
+        <button class="filter-chip" data-tag="crypto">Crypto &amp; Security</button>
+        <button class="filter-chip" data-tag="gamedev">Gamedev &amp; Simulation</button>
+        <button class="filter-chip" data-tag="web">Web &amp; Network</button>
+        <button class="filter-chip" data-tag="storage">Storage</button>
+      </div>
+    </section>
+
+    <!-- Packages Section Header -->
+    <div class="section-header">
+      <div class="section-title">
+        Available Sparks
+        <span class="packages-count" id="results-count">(5 packages)</span>
+      </div>
+    </div>
+
+    <!-- Package Cards Grid -->
+    <div class="packages-grid" id="packages-grid">
+      <!-- Injected dynamically by app.js -->
+    </div>
+
+    <!-- Publish via PR Section -->
+    <section class="guide-section" id="publish-section">
+      <h2 class="guide-title">How to Publish a Spark via GitHub PR</h2>
+      <p class="guide-desc">
+        Sparks is 100% decentralized and static. No developer API tokens or proprietary upload services are required. Submit your package directly via a standard GitHub Pull Request.
+      </p>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">STEP 01</div>
+          <div class="step-title">Package Your Code</div>
+          <p>Package your library source files and <code>capabilities.json</code> into a POSIX ustar tarball.</p>
+          <pre><code>dpm pack
+# or manually:
+tar -cf mypkg-1.0.0.tar main.dtr capabilities.json</code></pre>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">STEP 02</div>
+          <div class="step-title">Compute Digest &amp; Sign</div>
+          <p>Compute the SHA-256 hash of your tarball and sign it with your ed25519 key.</p>
+          <pre><code>sha256sum mypkg-1.0.0.tar
+dpm sign mypkg-1.0.0.tar</code></pre>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">STEP 03</div>
+          <div class="step-title">Submit Pull Request</div>
+          <p>Add <code>packages/mypkg/1.0.0.json</code> to the registry repo and submit a PR.</p>
+          <pre><code>git checkout -b spark/mypkg-1.0.0
+git commit -m "feat(sparks): add mypkg 1.0.0"
+gh pr create --fill</code></pre>
+        </div>
+      </div>
+
+      <!-- Manifest Generator Tool -->
+      <div class="tool-box">
+        <div class="tool-header">
+          <div class="tool-title">Interactive Manifest Generator (Schema 1)</div>
+          <button class="btn-copy" onclick="copyManifestJson()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy Manifest JSON
+          </button>
+        </div>
+
+        <div class="generator-layout">
+          <div class="form-pane">
+            <div class="form-group">
+              <label class="form-label" for="gen-tarfile">Package Archive (.tar)</label>
+              <input type="file" id="gen-tarfile" class="form-input" accept=".tar" onchange="handleTarUpload(event)">
+              <small id="tar-status-note" style="color: var(--text-secondary); font-size: 11px; margin-top: 4px; display: block;">Select your built .tar archive to compute real SHA-256 and content size.</small>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="gen-name">Package Name (sparks/&lt;name&gt;)</label>
+              <input type="text" id="gen-name" class="form-input" value="sparks/fast_json" oninput="updateGeneratedManifest()">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="gen-version">Version (SemVer)</label>
+              <input type="text" id="gen-version" class="form-input" value="1.0.0" oninput="updateGeneratedManifest()">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="gen-desc">Description</label>
+              <input type="text" id="gen-desc" class="form-input" value="Ultra-fast zero-copy JSON parser using SIMD scanning" oninput="updateGeneratedManifest()">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="gen-author">Author</label>
+              <input type="text" id="gen-author" class="form-input" value="Jane Developer <jane@datara.dev>" oninput="updateGeneratedManifest()">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="gen-pubkey">Author Ed25519 Public Key (64 Hex)</label>
+              <input type="text" id="gen-pubkey" class="form-input" placeholder="e.g. 1e5b98204a627f872e09e8fb32e511ab..." oninput="updateGeneratedManifest()">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="gen-sig">Ed25519 Archive Signature (128 Hex)</label>
+              <input type="text" id="gen-sig" class="form-input" placeholder="e.g. 7c02b9e73d4a51f8a85501..." oninput="updateGeneratedManifest()">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="gen-caps">Capabilities (Comma-separated or empty for pure)</label>
+              <input type="text" id="gen-caps" class="form-input" placeholder="e.g. Capability<FileRead>" value="" oninput="updateGeneratedManifest()">
+            </div>
+          </div>
+
+          <div class="json-preview-container">
+            <div class="preview-header">
+              <span>packages/fast_json/1.0.0.json</span>
+              <span id="schema-status">&bull; Schema 1 Valid</span>
+            </div>
+            <pre class="preview-code"><code id="manifest-preview"></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Protocol Specification Section -->
+    <section class="guide-section" id="protocol-section">
+      <h2 class="guide-title">Sparse Registry Protocol (Schema 1)</h2>
+      <p class="guide-desc">
+        Datara's package manager (<code>dpm</code>) does not clone large indices or poll heavy search backends. It queries static immutable JSON endpoints directly.
+      </p>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-lbl">Registry Root Snapshot</div>
+          <div class="info-val"><a href="index.json" target="_blank">/index.json</a></div>
+        </div>
+        <div class="info-card">
+          <div class="info-lbl">JSON Schema Definition</div>
+          <div class="info-val"><a href="schema.json" target="_blank">/schema.json</a></div>
+        </div>
+        <div class="info-card">
+          <div class="info-lbl">Package Latest Snapshot</div>
+          <div class="info-val">/packages/&lt;name&gt;.json</div>
+        </div>
+        <div class="info-card">
+          <div class="info-lbl">Exact Release Manifest</div>
+          <div class="info-val">/packages/&lt;name&gt;/&lt;ver&gt;.json</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Package Detail Modal -->
+  <div class="modal-overlay" id="package-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-pkg-name" id="modal-title">sparks/crypto_core</span>
+          <select id="modal-version-select" class="modal-version-select" title="Switch package version" onchange="onModalVersionChange(this.value)">
+            <!-- Populated dynamically -->
+          </select>
+          <span class="badge badge-verified" id="modal-badge-ver">v1.0.0</span>
+        </div>
+        <button class="btn-close-modal" onclick="closePackageModal()" aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="readme" onclick="switchModalTab('readme')">Documentation</button>
+        <button class="modal-tab" data-tab="overview" onclick="switchModalTab('overview')">Usage &amp; Install</button>
+        <button class="modal-tab" data-tab="versions" onclick="switchModalTab('versions')">Versions &amp; Downloads</button>
+        <button class="modal-tab" data-tab="security" onclick="switchModalTab('security')">Security &amp; Sandbox</button>
+        <button class="modal-tab" data-tab="manifest" onclick="switchModalTab('manifest')">Raw Manifest</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Tab: In-Browser Documentation (README) -->
+        <div id="tab-content-readme" class="tab-content">
+          <div class="markdown-body" id="modal-readme-body">
+            <!-- Dynamically rendered Markdown documentation -->
+          </div>
+        </div>
+
+        <!-- Tab: Overview & Usage -->
+        <div id="tab-content-overview" class="tab-content" style="display: none;">
+          <div class="info-grid" style="margin-bottom: 16px;">
+            <div class="info-card">
+              <div class="info-lbl">Author</div>
+              <div class="info-val" id="modal-author">-</div>
+            </div>
+            <div class="info-card">
+              <div class="info-lbl">License</div>
+              <div class="info-val" id="modal-license">-</div>
+            </div>
+            <div class="info-card">
+              <div class="info-lbl">Archive Size</div>
+              <div class="info-val" id="modal-size">-</div>
+            </div>
+            <div class="info-card">
+              <div class="info-lbl">Downloads</div>
+              <div class="info-val" id="modal-downloads">-</div>
+            </div>
+            <div class="info-card">
+              <div class="info-lbl">Direct Archive</div>
+              <div class="info-val"><a id="modal-tar-link" href="#" class="btn-download" download onclick="onModalDirectDownloadClick()">Download .tar</a></div>
+            </div>
+          </div>
+
+          <p id="modal-desc" style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;"></p>
+
+          <div class="code-block-wrapper" style="margin-bottom: 20px;">
+            <div class="code-block-header">
+              <span>CLI Installation</span>
+              <button class="btn-copy" id="btn-modal-install-copy">Copy</button>
+            </div>
+            <pre><code id="modal-install-cmd">dpm add sparks/crypto_core</code></pre>
+          </div>
+
+          <div class="code-block-wrapper">
+            <div class="code-block-header">
+              <span>Example Usage (src/main.dtr)</span>
+              <button class="btn-copy" id="btn-modal-code-copy">Copy Code</button>
+            </div>
+            <pre><code id="modal-code-example"></code></pre>
+          </div>
+        </div>
+
+        <!-- Tab: Versions & Releases -->
+        <div id="tab-content-versions" class="tab-content" style="display: none;">
+          <div class="versions-table-wrapper">
+            <table class="versions-table">
+              <thead>
+                <tr>
+                  <th>Version</th>
+                  <th>Direct Archive</th>
+                  <th>Size</th>
+                  <th>SHA-256 Digest</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="modal-versions-list">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab: Security & Capabilities -->
+        <div id="tab-content-security" class="tab-content" style="display: none;">
+          <div class="code-block-wrapper" style="margin-bottom: 16px;">
+            <div class="code-block-header">
+              <span>Compile-Time Capability Audit</span>
+            </div>
+            <div style="padding: 14px;" id="modal-caps-explanation">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+
+          <div class="info-grid" style="margin-bottom: 16px;">
+            <div class="info-card">
+              <div class="info-lbl">SHA-256 Checksum</div>
+              <div class="info-val" id="modal-sha256" style="font-size: 11px;">-</div>
+            </div>
+            <div class="info-card">
+              <div class="info-lbl">ed25519 Public Key</div>
+              <div class="info-val" id="modal-pk" style="font-size: 11px;">-</div>
+            </div>
+            <div class="info-card">
+              <div class="info-lbl">Author Key ID</div>
+              <div class="info-val" id="modal-keyid" style="font-size: 11px;">-</div>
+            </div>
+          </div>
+
+          <div class="code-block-wrapper">
+            <div class="code-block-header">
+              <span>Determinism Receipt</span>
+            </div>
+            <pre><code id="modal-receipt"></code></pre>
+          </div>
+        </div>
+
+        <!-- Tab: Raw Manifest -->
+        <div id="tab-content-manifest" class="tab-content" style="display: none;">
+          <div class="code-block-wrapper">
+            <div class="code-block-header">
+              <span>Schema 1 Package JSON</span>
+              <button class="btn-copy" id="btn-modal-manifest-copy">Copy JSON</button>
+            </div>
+            <pre><code id="modal-manifest-json"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div>
+        <strong>Sparks Package Registry</strong> &bull; Built for <strong>Datara 1.0.0</strong>. Distributed on GitHub Pages.
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/waters1ze/datara" target="_blank" rel="noopener">GitHub</a>
+        <a href="index.json">index.json</a>
+        <a href="schema.json">schema.json</a>
+        <a href="#protocol-section">Protocol Spec</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js?v=1.0.5"></script>
+</body>
+</html>

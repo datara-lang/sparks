@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "name": "sparks/toy_kv",
+  "version": "0.9.0",
+  "description": "Initial in-memory prototype key-value storage engine in pure Datara",
+  "author": "Datara Core Team <core@datara.dev>",
+  "license": "MIT OR Apache-2.0",
+  "tarball_url": "tarballs/toy_kv-0.9.0.tar",
+  "sha256": "d1f745559868835b13d045cb8bd87b49aef8f27d2792b53927a5ad19d8359487",
+  "public_key": "1e5b98204a627f872e09e8fb32e511abdc714b0f1b720d809b5e43e1ea97925d",
+  "signature": "52d859fb5081b9e505de0139fcf2bf2c6040112296805ce6b7d8c84a7165d15f7a230393928866896a76b08edaf9738ddef64a9b4161982dc28a954318c4ed0d",
+  "key_id": "datara-core-2026-v2",
+  "size_bytes": 591,
+  "downloads": 0,
+  "capabilities": [],
+  "dependencies": {},
+  "tags": [
+    "storage",
+    "database",
+    "kv"
+  ],
+  "sample_usage": "use sparks/toy_kv\n\nfn main() {\n    let mut db = toy_kv.ToyKV.new()\n    db.set(\"key\", \"val\")\n    println(db.get(\"key\"))\n}",
+  "readme": "# toy_kv v0.9.0\n\nInitial in-memory prototype release of key-value storage in Datara.\n\n## Installation\n```bash\ndpm add sparks/toy_kv@0.9.0\n```\n",
+  "all_versions": [
+    "1.0.0",
+    "0.9.0"
+  ]
+}

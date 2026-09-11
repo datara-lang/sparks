@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "name": "sparks/crypto_core",
+  "version": "1.0.0",
+  "description": "High-performance cryptographic primitives, bitwise mixing, and constant-time utilities in pure Datara",
+  "author": "Datara Core Team <core@datara.dev>",
+  "license": "MIT OR Apache-2.0",
+  "tarball_url": "tarballs/crypto_core-1.0.0.tar",
+  "sha256": "5d4160e1bce5dc15869dfa2868b6eb1fd25c54b8d3c9f86b5fc707915f7537cc",
+  "public_key": "1e5b98204a627f872e09e8fb32e511abdc714b0f1b720d809b5e43e1ea97925d",
+  "signature": "34b95fbc70f7fa54af478dab4e6b3673b5493b9c8d3a6c6ad9a3971c32d487ac6855c0f7587ced2ba3f01ff9b7888c7c7a556502f1ad76604156f6dc8ebfba01",
+  "key_id": "datara-core-2026-v2",
+  "size_bytes": 2707,
+  "downloads": 0,
+  "capabilities": [],
+  "dependencies": {},
+  "tags": [
+    "crypto",
+    "security",
+    "pure-compute",
+    "hash"
+  ],
+  "sample_usage": "use sparks/crypto_core\n\nfn main() {\n    let a: [Byte] = [0xDE, 0xAD, 0xBE, 0xEF]\n    let b: [Byte] = [0xDE, 0xAD, 0xBE, 0xEF]\n    let is_same = crypto_core.constant_time_eq(a, b)\n    println(is_same)\n}",
+  "readme": "# crypto_core\n\nOfficial pure-compute cryptographic primitives and constant-time utilities for **Datara 1.0.0**.\n\n## Key Highlights\n- **Zero Capabilities (`Pure Compute`)**: Does not perform I/O, access files, or create network sockets. Guaranteed safe to execute on untrusted data.\n- **Timing-Attack Immune**: `constant_time_eq` guarantees data-independent execution time to prevent side-channel leaks.\n- **Modern Primitives**: 32-bit bitwise rotators (`rotl32`, `rotr32`) and ChaCha20 quarter-round operations.\n\n## Quick Start\n```datara\nuse sparks/crypto_core\n\nfn main() {\n    let key1: [Byte] = [0x01, 0x02, 0x03, 0x04]\n    let key2: [Byte] = [0x01, 0x02, 0x03, 0x04]\n    \n    if crypto_core.constant_time_eq(key1, key2) {\n        println(\"Keys match without timing side-channel leakage!\")\n    }\n}\n```\n\n## API Reference\n\n### `fn constant_time_eq(a: [Byte], b: [Byte]) -> Bool`\nCompares two byte slices in constant time. Returns `true` if and only if both slices have identical length and byte contents.\n\n### `fn rotl32(v: Int, shift: Int) -> Int`\nPerforms 32-bit bitwise circular left shift.\n\n### `fn rotr32(v: Int, shift: Int) -> Int`\nPerforms 32-bit bitwise circular right shift.\n\n### `fn chacha_quarter_round(a: Int, b: Int, c: Int, d: Int) -> (Int, Int, Int, Int)`\nCalculates the fundamental ChaCha ARX (Add-Rotate-XOR) quarter round on four 32-bit words.\n\n## Security & Capability Model\nBecause `crypto_core` requires `0` capabilities, the Datara compiler guarantees at compile-time that this library cannot read secrets from the filesystem or exfiltrate state to the network.\n",
+  "all_versions": [
+    "1.0.0",
+    "0.9.0"
+  ]
+}

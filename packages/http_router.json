@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "name": "sparks/http_router",
+  "version": "1.0.0",
+  "description": "Zero-allocation HTTP route matcher, method multiplexer, and REST path dispatcher",
+  "author": "Datara Core Team <core@datara.dev>",
+  "license": "MIT OR Apache-2.0",
+  "tarball_url": "tarballs/http_router-1.0.0.tar",
+  "sha256": "89e5cef962838edb2b1f6753ff58da9ad1a7f06e5b2f03cf8a2e071222e00fa1",
+  "public_key": "1e5b98204a627f872e09e8fb32e511abdc714b0f1b720d809b5e43e1ea97925d",
+  "signature": "64f54164e5f28f618f2f5d8c4edf9ccea62e3dcc228730df9ad5ef2c47152ab4cd0873cbc44a238e73d1868f90a93cffd1cc8599093d4b19904858c17ee1670a",
+  "key_id": "datara-core-2026-v2",
+  "size_bytes": 1969,
+  "downloads": 0,
+  "capabilities": [],
+  "dependencies": {},
+  "tags": [
+    "web",
+    "networking",
+    "router",
+    "http"
+  ],
+  "sample_usage": "use sparks/http_router\n\nfn main() {\n    let mut r = http_router.Router.new()\n    r.add(\"GET\", \"/health\", 100)\n    let match_res = r.dispatch(\"GET\", \"/health\")\n    println(match_res.matched)\n}",
+  "readme": "# http_router\n\nHigh-throughput, zero-allocation HTTP request route multiplexer for Datara services.\n\n## Highlights\n- **Fast Prefix Matching**: Dispatches requests by method and path without heap churn.\n- **Modular Routing**: Clean router builder pattern with handler ID mapping.\n- **Pure Compute Core**: Route matching requires 0 capabilities and can be safely evaluated in any isolated sandbox worker.\n\n## Example\n```datara\nuse sparks/http_router\n\nfn main() {\n    let mut router = http_router.Router.new()\n    router.add(\"GET\", \"/api/v1/health\", 1)\n    router.add(\"POST\", \"/api/v1/users\", 2)\n\n    let res = router.dispatch(\"GET\", \"/api/v1/health\")\n    if res.matched {\n        println(\"Route matched handler: \" + res.handler_id)\n    }\n}\n```\n",
+  "all_versions": [
+    "1.0.0"
+  ]
+}
