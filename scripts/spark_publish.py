@@ -272,7 +272,8 @@ def publish_package(
                 "sample_usage": manifest["sample_usage"],
                 "readme": readme_text or p.get("readme", ""),
                 "size_bytes": content_size if version == latest_ver else p.get("size_bytes", content_size),
-                "downloads": p.get("downloads", 0)
+                "downloads": p.get("downloads", 0),
+                "likes": p.get("likes", 0)
             })
             p["versions"] = all_versions[::-1]
             entry_found = True
@@ -297,7 +298,8 @@ def publish_package(
             "readme": readme_text,
             "versions": all_versions[::-1],
             "size_bytes": content_size,
-            "downloads": 0
+            "downloads": 0,
+            "likes": 0
         })
 
     idx_data["packages"] = pkg_list

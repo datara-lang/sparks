@@ -76,6 +76,11 @@
       "minimum": 0,
       "description": "Total package downloads counter"
     },
+    "likes": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Community appreciation counter (hearts/likes)"
+    },
     "readme": {
       "type": "string",
       "description": "Full Markdown documentation and API guide"

@@ -683,6 +683,7 @@ for raw_id, versions in packages_by_id.items():
             "key_id": "datara-core-2026-v2",
             "size_bytes": content_size,
             "downloads": 0,
+            "likes": 0,
             "capabilities": pkg["capabilities"],
             "dependencies": {},
             "tags": pkg["tags"],
@@ -725,7 +726,8 @@ for raw_id, versions in packages_by_id.items():
         "readme": latest_pkg["files"]["README.md"],
         "versions": all_ver_strings,
         "size_bytes": latest_manifest["size_bytes"],
-        "downloads": 0
+        "downloads": 0,
+        "likes": 0
     })
 
 # Deterministic timestamp

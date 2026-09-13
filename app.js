@@ -49,7 +49,9 @@ function renderPackages() {
 
   let filtered = allPackages.filter(pkg => {
     // 1. Tag filter
-    if (currentFilterTag === 'pure') {
+    if (currentFilterTag === 'favorites') {
+      if (!isPackageLiked(pkg.name)) return false;
+    } else if (currentFilterTag === 'pure') {
       if (pkg.capabilities && pkg.capabilities.length > 0) return false;
     } else if (currentFilterTag !== 'all') {
       const hasTag = (pkg.tags || []).some(t => t.toLowerCase() === currentFilterTag.toLowerCase());
@@ -73,7 +75,9 @@ function renderPackages() {
   });
 
   // Sort
-  if (currentSort === 'downloads' || currentSort === 'featured') {
+  if (currentSort === 'likes') {
+    filtered.sort((a, b) => getPackageLikes(b) - getPackageLikes(a));
+  } else if (currentSort === 'downloads' || currentSort === 'featured') {
     filtered.sort((a, b) => getPackageDownloads(b) - getPackageDownloads(a));
   } else if (currentSort === 'name-asc') {
     filtered.sort((a, b) => a.name.localeCompare(b.name));
@@ -115,13 +119,19 @@ function createPackageCardHtml(pkg) {
   const dlCount = getPackageDownloads(pkg);
   const dlBadge = `<span class="badge badge-downloads" title="${dlCount.toLocaleString()} total downloads"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> ${formatNumber(dlCount)}</span>`;
   const keyIdBadge = pkg.key_id ? `<span class="badge" title="Author Key ID: ${escapeHtml(pkg.key_id)}">${escapeHtml(pkg.key_id)}</span>` : '';
+  const isLiked = isPackageLiked(pkg.name);
+  const likeCount = getPackageLikes(pkg);
+  const likeBtn = `<button class="btn-like ${isLiked ? 'liked' : ''}" title="${isLiked ? 'Remove from favorites' : 'Add to favorites'}" onclick="togglePackageLike(event, '${escapeHtml(pkg.name)}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="${isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span class="like-count">${formatNumber(likeCount)}</span></button>`;
 
   return `
     <div class="package-card" data-pkg="${escapeHtml(pkg.name)}">
       <div class="card-top">
         <div class="card-header-row">
           <div class="package-name">${escapeHtml(pkg.name)}</div>
-          <span class="badge badge-verified">v${escapeHtml(pkg.latest_version)}</span>
+          <div class="card-header-actions">
+            ${likeBtn}
+            <span class="badge badge-verified">v${escapeHtml(pkg.latest_version)}</span>
+          </div>
         </div>
 
         <div class="badges-row">
@@ -266,6 +276,9 @@ function openPackageDetails(packageName) {
     ).join('');
   }
 
+  // Update like button in modal header
+  updateModalLikeButton(pkg);
+
   // Update version-dependent elements
   updateModalVersionView(pkg, activeModalSelectedVersion);
 
@@ -399,6 +412,11 @@ function updateModalVersionView(pkg, selectedVer) {
   const dlEl = document.getElementById('modal-downloads');
   if (dlEl) {
     dlEl.textContent = getPackageDownloads(pkg).toLocaleString();
+  }
+
+  const likesMetricEl = document.getElementById('modal-likes-metric');
+  if (likesMetricEl) {
+    likesMetricEl.textContent = `${getPackageLikes(pkg)} ❤️`;
   }
 
   const tarLink = document.getElementById('modal-tar-link');
@@ -730,4 +748,89 @@ function trackDownload(pkgName) {
   }
 
   showToast(`+1 download recorded for ${pkgName}`);
+}
+
+// Like / Appreciation logic
+function isPackageLiked(pkgName) {
+  return localStorage.getItem(`sparks_like_${pkgName}`) === '1';
+}
+
+function getPackageLikes(pkg) {
+  if (!pkg) return 0;
+  const userLiked = isPackageLiked(pkg.name) ? 1 : 0;
+  return (pkg.likes || 0) + userLiked;
+}
+
+function togglePackageLike(event, pkgName) {
+  if (event) {
+    event.stopPropagation();
+  }
+  const wasLiked = isPackageLiked(pkgName);
+  const willLike = !wasLiked;
+  if (willLike) {
+    localStorage.setItem(`sparks_like_${pkgName}`, '1');
+  } else {
+    localStorage.removeItem(`sparks_like_${pkgName}`);
+  }
+
+  // If currently filtering by favorites, re-render to update the list
+  if (currentFilterTag === 'favorites') {
+    renderPackages();
+  } else {
+    // Update card button directly
+    const card = document.querySelector(`.package-card[data-pkg="${pkgName}"]`);
+    if (card) {
+      const btn = card.querySelector('.btn-like');
+      if (btn) {
+        const pkg = allPackages.find(p => p.name === pkgName);
+        const count = pkg ? getPackageLikes(pkg) : (willLike ? 1 : 0);
+        if (willLike) {
+          btn.classList.add('liked');
+          btn.title = 'Remove from favorites';
+        } else {
+          btn.classList.remove('liked');
+          btn.title = 'Add to favorites';
+        }
+        btn.querySelector('svg').setAttribute('fill', willLike ? 'currentColor' : 'none');
+        const countSpan = btn.querySelector('.like-count');
+        if (countSpan) countSpan.textContent = formatNumber(count);
+      }
+    }
+  }
+
+  // Update modal if open
+  if (activeModalPackage && activeModalPackage.name === pkgName) {
+    updateModalLikeButton(activeModalPackage);
+  }
+
+  showToast(willLike ? `Added ${pkgName} to favorites (❤️)` : `Removed from favorites`);
+}
+
+function toggleActiveModalLike() {
+  if (!activeModalPackage) return;
+  togglePackageLike(null, activeModalPackage.name);
+}
+
+function updateModalLikeButton(pkg) {
+  const btn = document.getElementById('modal-btn-like');
+  const countEl = document.getElementById('modal-like-count');
+  if (!btn || !countEl || !pkg) return;
+  const isLiked = isPackageLiked(pkg.name);
+  const count = getPackageLikes(pkg);
+
+  if (isLiked) {
+    btn.classList.add('liked');
+    btn.title = 'Remove from favorites';
+  } else {
+    btn.classList.remove('liked');
+    btn.title = 'Add to favorites (❤️)';
+  }
+  const svg = btn.querySelector('svg');
+  if (svg) svg.setAttribute('fill', isLiked ? 'currentColor' : 'none');
+  countEl.textContent = formatNumber(count);
+
+  const likesMetricEl = document.getElementById('modal-likes-metric');
+  if (likesMetricEl) {
+    likesMetricEl.textContent = `${count} ❤️`;
+  }
 }

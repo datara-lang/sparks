@@ -26,6 +26,10 @@
   --badge-verified-bg: #1f242c;
   --badge-verified-fg: #f0f6fc;
   --badge-verified-border: #484f58;
+  --accent-heart: #f43f5e;
+  --accent-heart-bg: rgba(244, 63, 94, 0.12);
+  --accent-heart-hover: rgba(244, 63, 94, 0.22);
+  --accent-heart-border: rgba(244, 63, 94, 0.35);
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   --radius-sm: 4px;
@@ -1285,3 +1289,104 @@ code, pre, .mono {
   font-size: 11px;
   color: var(--text-muted);
 }
+
+/* Heart / Like Appreciation Styles */
+.card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-like {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  line-height: 1;
+}
+
+.btn-like:hover {
+  border-color: var(--accent-heart-border);
+  color: var(--accent-heart);
+  background: var(--accent-heart-bg);
+}
+
+.btn-like.liked {
+  background: var(--accent-heart-bg);
+  border-color: var(--accent-heart-border);
+  color: var(--accent-heart);
+}
+
+.btn-like svg, .btn-like-modal svg {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-like.liked svg, .btn-like-modal.liked svg {
+  fill: var(--accent-heart);
+  stroke: var(--accent-heart);
+  animation: heartPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-like-modal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  line-height: 1;
+}
+
+.btn-like-modal:hover {
+  border-color: var(--accent-heart-border);
+  color: var(--accent-heart);
+  background: var(--accent-heart-bg);
+}
+
+.btn-like-modal.liked {
+  background: var(--accent-heart-bg);
+  border-color: var(--accent-heart-border);
+  color: var(--accent-heart);
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.2);
+}
+
+.filter-chip.filter-chip-fav {
+  border-color: rgba(244, 63, 94, 0.35);
+  color: #fca5a5;
+}
+
+.filter-chip.filter-chip-fav:hover {
+  border-color: var(--accent-heart);
+  color: #fff;
+  background: var(--accent-heart-bg);
+}
+
+.filter-chip.filter-chip-fav.active {
+  background: var(--accent-heart);
+  border-color: var(--accent-heart);
+  color: #fff;
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+

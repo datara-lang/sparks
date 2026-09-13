@@ -49,7 +49,7 @@ def test_xss_audit_inner_html_escaping():
                 or "formatBytes(" in expr
                 or "formatNumber(" in expr
                 or "formatInlineMarkdown(" in expr
-                or expr in {"capsBadge", "tagsHtml", "sizeDisp", "keyIdBadge", "dlBadge", "renderedReadmeHtml", "versionsTableHtml", "latestBadge"}
+                or expr in {"capsBadge", "tagsHtml", "sizeDisp", "keyIdBadge", "dlBadge", "renderedReadmeHtml", "versionsTableHtml", "latestBadge", "likeBtn"}
                 or "<svg" in expr
             )
             assert is_safe, f"Potential unescaped HTML interpolation in web catalog: '${{{expr}}}'"

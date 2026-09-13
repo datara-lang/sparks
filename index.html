@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sparks: The Capability-Native Package Registry for Datara</title>
   <meta name="description" content="Decentralized, capability-native, ed25519-signed package registry for the Datara programming language. Statically distributed on GitHub Pages.">
-  <link rel="stylesheet" href="styles.css?v=1.0.5">
+  <link rel="stylesheet" href="styles.css?v=1.0.6">
   <style>
     :root, html, body {
       color-scheme: dark !important;
@@ -187,6 +187,7 @@
         </div>
         <select id="sort-select" class="sort-select">
           <option value="downloads" selected>Sort: Most Popular</option>
+          <option value="likes">Sort: Most Liked (❤️)</option>
           <option value="name-asc">Sort: Name (A &rarr; Z)</option>
           <option value="name-desc">Sort: Name (Z &rarr; A)</option>
           <option value="size">Sort: Size</option>
@@ -196,6 +197,7 @@
       <!-- Category Filter Chips -->
       <div class="filter-tags-bar" id="filter-tags-bar">
         <button class="filter-chip active" data-tag="all">All Sparks</button>
+        <button class="filter-chip filter-chip-fav" data-tag="favorites">❤️ Favorites</button>
         <button class="filter-chip" data-tag="pure">Pure Compute (0 Caps)</button>
         <button class="filter-chip" data-tag="math">SIMD &amp; Math</button>
         <button class="filter-chip" data-tag="crypto">Crypto &amp; Security</button>
@@ -349,6 +351,12 @@ gh pr create --fill</code></pre>
       <div class="modal-header">
         <div class="modal-title-group">
           <span class="modal-pkg-name" id="modal-title">sparks/crypto_core</span>
+          <button id="modal-btn-like" class="btn-like-modal" title="Appreciate / Favorite package" onclick="toggleActiveModalLike()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span id="modal-like-count">0</span>
+          </button>
           <select id="modal-version-select" class="modal-version-select" title="Switch package version" onchange="onModalVersionChange(this.value)">
             <!-- Populated dynamically -->
           </select>
@@ -396,6 +404,10 @@ gh pr create --fill</code></pre>
             <div class="info-card">
               <div class="info-lbl">Downloads</div>
               <div class="info-val" id="modal-downloads">-</div>
+            </div>
+            <div class="info-card">
+              <div class="info-lbl">Appreciation</div>
+              <div class="info-val" id="modal-likes-metric">0 ❤️</div>
             </div>
             <div class="info-card">
               <div class="info-lbl">Direct Archive</div>
@@ -508,6 +520,6 @@ gh pr create --fill</code></pre>
     </div>
   </footer>
 
-  <script src="app.js?v=1.0.5"></script>
+  <script src="app.js?v=1.0.6"></script>
 </body>
 </html>
