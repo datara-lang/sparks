@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "name": "sparks/forgen_ai",
+  "version": "1.4.0",
+  "description": "Official AI Developer Companion and Epistemic Engine for Datara",
+  "author": "Datara Core Team <core@datara.dev>",
+  "license": "MIT OR Apache-2.0",
+  "tarball_url": "tarballs/forgen_ai-1.4.0.tar",
+  "sha256": "43c06a11f4a26143f4592c4537978c858306ad2ba946722a490445dacda43686",
+  "public_key": "1e5b98204a627f872e09e8fb32e511abdc714b0f1b720d809b5e43e1ea97925d",
+  "signature": "fcae1709452a214562fa60d0bea652ef8db9ce715224a1b95bcb07e44ba008758729c83caa1db53f82efa5cab4f950feb7c128dfe278aa7a14022b60552a1c0a",
+  "key_id": "datara-core-2026-v2",
+  "size_bytes": 526712,
+  "downloads": 0,
+  "capabilities": [],
+  "dependencies": {},
+  "tags": [
+    "datara",
+    "forgen_ai"
+  ],
+  "sample_usage": "use sparks/forgen_ai\n\nfn main() {\n    println(\"Using sparks/forgen_ai\")\n}",
+  "readme": ""
+}
