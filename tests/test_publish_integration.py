@@ -85,6 +85,7 @@ def main():
         sys.path.insert(0, os.path.join(SPARKS_ROOT, "scripts"))
         from spark_publish import publish_package
 
+        test_seed = "36418cf514338bccbefbf29c9869c83f0bb83b5e3738b9fb24e7f05b57027606"
         manifest, tar_bytes = publish_package(
             pkg_dir=pkg_src,
             name="sparks/test_integ_pkg",
@@ -93,6 +94,7 @@ def main():
             author="Test Runner <test@datara.dev>",
             license_id="MIT",
             key_id="datara-core-2026-v2",
+            seed_hex=test_seed,
             registry_root=reg_dir
         )
 
