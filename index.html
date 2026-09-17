@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sparks: The Capability-Native Package Registry for Datara</title>
   <meta name="description" content="Decentralized, capability-native, ed25519-signed package registry for the Datara programming language. Statically distributed on GitHub Pages.">
-  <link rel="stylesheet" href="styles.css?v=1.0.6">
+  <link rel="stylesheet" href="styles.css?v=1.0.9">
   <style>
     :root, html, body {
       color-scheme: dark !important;
@@ -110,7 +110,7 @@
         <div class="brand-text">
           <div class="brand-title">
             Sparks
-            <span class="badge-ver">v1.0.1</span>
+            <span class="badge-ver">v1.0.4</span>
           </div>
           <div class="brand-subtitle">Datara Package Registry</div>
         </div>
@@ -120,7 +120,7 @@
         <a href="#packages-section" class="nav-link">Packages</a>
         <a href="#publish-section" class="nav-link">Publish via PR</a>
         <a href="#protocol-section" class="nav-link">Protocol Spec</a>
-        <a href="https://github.com/waters1ze/datara" target="_blank" rel="noopener" class="nav-link">Datara Core</a>
+        <a href="https://github.com/datara-lang/datara" target="_blank" rel="noopener" class="nav-link">Datara Core</a>
         <a href="#publish-section" class="btn-nav-action">Submit Spark</a>
       </nav>
     </div>
@@ -142,8 +142,8 @@
 
       <div class="metrics-grid">
         <div class="metric-card">
-          <div class="metric-val" id="metric-packages-count">5</div>
-          <div class="metric-lbl">Official Sparks</div>
+          <div class="metric-val" id="metric-packages-count">6</div>
+          <div class="metric-lbl">Indexed Sparks</div>
         </div>
         <div class="metric-card">
           <div class="metric-val">100%</div>
@@ -157,6 +157,16 @@
           <div class="metric-val">Static</div>
           <div class="metric-lbl">GitHub Pages CAS</div>
         </div>
+        <div class="metric-card metric-card-fav">
+          <div class="metric-val" id="metric-favorites-count">0</div>
+          <div class="metric-lbl">Your Favourites</div>
+        </div>
+      </div>
+
+      <!-- Community counter status: states which numbers are measured and which are published -->
+      <div class="counter-status" id="counter-status" data-state="connecting" role="status" aria-live="polite">
+        <span class="counter-dot" aria-hidden="true"></span>
+        <span id="counter-status-text">Community counter connecting</span>
       </div>
 
       <!-- Quick Install Bar -->
@@ -164,7 +174,7 @@
         <div class="cli-command">
           <span class="prompt">$ </span>dpm add sparks/crypto_core
         </div>
-        <button class="btn-copy" onclick="copyText('dpm add sparks/crypto_core')">
+        <button class="btn-copy" data-action="copy-text" data-copy="dpm add sparks/crypto_core" data-toast="Install command copied">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -178,16 +188,22 @@
     <section class="controls-section" id="packages-section">
       <div class="search-row">
         <div class="search-input-wrapper">
-          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input type="text" id="search-input" class="search-input" placeholder="Search sparks by name, tag, capability, or author... (Press '/' to focus)" autocomplete="off">
+          <input type="text" id="search-input" class="search-input" placeholder="Search sparks by name, tag, capability, or author... (Press '/' to focus)" autocomplete="off" aria-label="Search the Sparks registry" data-action="search">
+          <button type="button" id="search-clear" class="search-clear" title="Clear search" aria-label="Clear search" hidden data-action="clear-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
           <kbd class="search-kbd">/</kbd>
         </div>
-        <select id="sort-select" class="sort-select">
-          <option value="downloads" selected>Sort: Most Popular</option>
-          <option value="likes">Sort: Most Liked (❤️)</option>
+        <select id="sort-select" class="sort-select" aria-label="Sort packages" data-action="sort">
+          <option value="downloads" selected>Sort: Most Downloaded</option>
+          <option value="likes">Sort: Most Appreciated</option>
           <option value="name-asc">Sort: Name (A &rarr; Z)</option>
           <option value="name-desc">Sort: Name (Z &rarr; A)</option>
           <option value="size">Sort: Size</option>
@@ -195,15 +211,21 @@
       </div>
 
       <!-- Category Filter Chips -->
-      <div class="filter-tags-bar" id="filter-tags-bar">
-        <button class="filter-chip active" data-tag="all">All Sparks</button>
-        <button class="filter-chip filter-chip-fav" data-tag="favorites">❤️ Favorites</button>
-        <button class="filter-chip" data-tag="pure">Pure Compute (0 Caps)</button>
-        <button class="filter-chip" data-tag="math">SIMD &amp; Math</button>
-        <button class="filter-chip" data-tag="crypto">Crypto &amp; Security</button>
-        <button class="filter-chip" data-tag="gamedev">Gamedev &amp; Simulation</button>
-        <button class="filter-chip" data-tag="web">Web &amp; Network</button>
-        <button class="filter-chip" data-tag="storage">Storage</button>
+      <div class="filter-tags-bar" id="filter-tags-bar" role="group" aria-label="Filter sparks by category">
+        <button class="filter-chip active" data-action="filter" data-tag="all" aria-pressed="true">All Sparks</button>
+        <button class="filter-chip filter-chip-fav" data-action="filter" data-tag="favorites" aria-pressed="false" title="Show only the sparks you bookmarked in this browser">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          Favourites
+          <span class="chip-count" id="fav-chip-count">0</span>
+        </button>
+        <button class="filter-chip" data-action="filter" data-tag="pure" aria-pressed="false">Pure Compute (0 Caps)</button>
+        <button class="filter-chip" data-action="filter" data-tag="math" aria-pressed="false">SIMD &amp; Math</button>
+        <button class="filter-chip" data-action="filter" data-tag="crypto" aria-pressed="false">Crypto &amp; Security</button>
+        <button class="filter-chip" data-action="filter" data-tag="gamedev" aria-pressed="false">Gamedev &amp; Simulation</button>
+        <button class="filter-chip" data-action="filter" data-tag="web" aria-pressed="false">Web &amp; Network</button>
+        <button class="filter-chip" data-action="filter" data-tag="storage" aria-pressed="false">Storage</button>
       </div>
     </section>
 
@@ -211,14 +233,23 @@
     <div class="section-header">
       <div class="section-title">
         Available Sparks
-        <span class="packages-count" id="results-count">(5 packages)</span>
+        <span class="packages-count" id="results-count" aria-live="polite">(6 packages)</span>
       </div>
     </div>
 
     <!-- Package Cards Grid -->
     <div class="packages-grid" id="packages-grid">
-      <!-- Injected dynamically by app.js -->
+      <!-- Injected dynamically by src/catalog.js -->
     </div>
+    <noscript>
+      <div class="empty-state">
+        <div class="empty-state-title">JavaScript is disabled</div>
+        <div class="empty-state-desc">
+          The Sparks catalog is rendered client-side. The raw registry data is always readable without scripting:
+          <a href="index.json">index.json</a> and <a href="schema.json">schema.json</a>.
+        </div>
+      </div>
+    </noscript>
 
     <!-- Publish via PR Section -->
     <section class="guide-section" id="publish-section">
@@ -259,7 +290,7 @@ gh pr create --fill</code></pre>
       <div class="tool-box">
         <div class="tool-header">
           <div class="tool-title">Interactive Manifest Generator (Schema 1)</div>
-          <button class="btn-copy" onclick="copyManifestJson()">
+          <button class="btn-copy" data-action="copy-manifest">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -272,43 +303,43 @@ gh pr create --fill</code></pre>
           <div class="form-pane">
             <div class="form-group">
               <label class="form-label" for="gen-tarfile">Package Archive (.tar)</label>
-              <input type="file" id="gen-tarfile" class="form-input" accept=".tar" onchange="handleTarUpload(event)">
+              <input type="file" id="gen-tarfile" class="form-input" accept=".tar" data-action="gen-upload">
               <small id="tar-status-note" style="color: var(--text-secondary); font-size: 11px; margin-top: 4px; display: block;">Select your built .tar archive to compute real SHA-256 and content size.</small>
             </div>
             <div class="form-group">
               <label class="form-label" for="gen-name">Package Name (sparks/&lt;name&gt;)</label>
-              <input type="text" id="gen-name" class="form-input" value="sparks/fast_json" oninput="updateGeneratedManifest()">
+              <input type="text" id="gen-name" class="form-input" value="sparks/fast_json" data-action="gen-update">
             </div>
             <div class="form-group">
               <label class="form-label" for="gen-version">Version (SemVer)</label>
-              <input type="text" id="gen-version" class="form-input" value="1.0.0" oninput="updateGeneratedManifest()">
+              <input type="text" id="gen-version" class="form-input" value="1.0.0" data-action="gen-update">
             </div>
             <div class="form-group">
               <label class="form-label" for="gen-desc">Description</label>
-              <input type="text" id="gen-desc" class="form-input" value="Ultra-fast zero-copy JSON parser using SIMD scanning" oninput="updateGeneratedManifest()">
+              <input type="text" id="gen-desc" class="form-input" value="Ultra-fast zero-copy JSON parser using SIMD scanning" data-action="gen-update">
             </div>
             <div class="form-group">
               <label class="form-label" for="gen-author">Author</label>
-              <input type="text" id="gen-author" class="form-input" value="Jane Developer <jane@datara.dev>" oninput="updateGeneratedManifest()">
+              <input type="text" id="gen-author" class="form-input" value="Jane Developer <jane@datara.dev>" data-action="gen-update">
             </div>
             <div class="form-group">
               <label class="form-label" for="gen-pubkey">Author Ed25519 Public Key (64 Hex)</label>
-              <input type="text" id="gen-pubkey" class="form-input" placeholder="e.g. 1e5b98204a627f872e09e8fb32e511ab..." oninput="updateGeneratedManifest()">
+              <input type="text" id="gen-pubkey" class="form-input" placeholder="e.g. 1e5b98204a627f872e09e8fb32e511ab..." data-action="gen-update">
             </div>
             <div class="form-group">
               <label class="form-label" for="gen-sig">Ed25519 Archive Signature (128 Hex)</label>
-              <input type="text" id="gen-sig" class="form-input" placeholder="e.g. 7c02b9e73d4a51f8a85501..." oninput="updateGeneratedManifest()">
+              <input type="text" id="gen-sig" class="form-input" placeholder="e.g. 7c02b9e73d4a51f8a85501..." data-action="gen-update">
             </div>
             <div class="form-group">
               <label class="form-label" for="gen-caps">Capabilities (Comma-separated or empty for pure)</label>
-              <input type="text" id="gen-caps" class="form-input" placeholder="e.g. Capability<FileRead>" value="" oninput="updateGeneratedManifest()">
+              <input type="text" id="gen-caps" class="form-input" placeholder="e.g. Capability<FileRead>" value="" data-action="gen-update">
             </div>
           </div>
 
           <div class="json-preview-container">
             <div class="preview-header">
               <span>packages/fast_json/1.0.0.json</span>
-              <span id="schema-status">&bull; Schema 1 Valid</span>
+              <span id="schema-status" class="preview-status warn">Placeholders: archive SHA-256, author public key, archive signature</span>
             </div>
             <pre class="preview-code"><code id="manifest-preview"></code></pre>
           </div>
@@ -346,36 +377,36 @@ gh pr create --fill</code></pre>
   </main>
 
   <!-- Package Detail Modal -->
-  <div class="modal-overlay" id="package-modal">
+  <div class="modal-overlay" id="package-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-content">
       <div class="modal-header">
         <div class="modal-title-group">
           <span class="modal-pkg-name" id="modal-title">sparks/crypto_core</span>
-          <button id="modal-btn-like" class="btn-like-modal" title="Appreciate / Favorite package" onclick="toggleActiveModalLike()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button id="modal-btn-like" class="btn-like-modal" title="Add to favourites" aria-pressed="false" aria-label="Add to favourites" data-action="modal-favorite">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
             <span id="modal-like-count">0</span>
           </button>
-          <select id="modal-version-select" class="modal-version-select" title="Switch package version" onchange="onModalVersionChange(this.value)">
+          <select id="modal-version-select" class="modal-version-select" title="Switch package version" aria-label="Select package version" data-action="version-change">
             <!-- Populated dynamically -->
           </select>
           <span class="badge badge-verified" id="modal-badge-ver">v1.0.0</span>
         </div>
-        <button class="btn-close-modal" onclick="closePackageModal()" aria-label="Close modal">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="btn-close-modal" data-action="close-modal" aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
       </div>
 
-      <div class="modal-tabs">
-        <button class="modal-tab active" data-tab="readme" onclick="switchModalTab('readme')">Documentation</button>
-        <button class="modal-tab" data-tab="overview" onclick="switchModalTab('overview')">Usage &amp; Install</button>
-        <button class="modal-tab" data-tab="versions" onclick="switchModalTab('versions')">Versions &amp; Downloads</button>
-        <button class="modal-tab" data-tab="security" onclick="switchModalTab('security')">Security &amp; Sandbox</button>
-        <button class="modal-tab" data-tab="manifest" onclick="switchModalTab('manifest')">Raw Manifest</button>
+      <div class="modal-tabs" role="tablist" aria-label="Package details">
+        <button class="modal-tab active" role="tab" aria-selected="true" data-action="modal-tab" data-tab="readme">Documentation</button>
+        <button class="modal-tab" role="tab" aria-selected="false" data-action="modal-tab" data-tab="overview">Usage &amp; Install</button>
+        <button class="modal-tab" role="tab" aria-selected="false" data-action="modal-tab" data-tab="versions">Versions &amp; Downloads</button>
+        <button class="modal-tab" role="tab" aria-selected="false" data-action="modal-tab" data-tab="security">Security &amp; Sandbox</button>
+        <button class="modal-tab" role="tab" aria-selected="false" data-action="modal-tab" data-tab="manifest">Raw Manifest</button>
       </div>
 
       <div class="modal-body">
@@ -406,12 +437,18 @@ gh pr create --fill</code></pre>
               <div class="info-val" id="modal-downloads">-</div>
             </div>
             <div class="info-card">
-              <div class="info-lbl">Appreciation</div>
-              <div class="info-val" id="modal-likes-metric">0 ❤️</div>
+              <div class="info-lbl">Appreciations</div>
+              <div class="info-val like-metric">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                <span id="modal-likes-count">0</span>
+                <span class="like-metric-note" id="modal-likes-source">no data</span>
+              </div>
             </div>
             <div class="info-card">
               <div class="info-lbl">Direct Archive</div>
-              <div class="info-val"><a id="modal-tar-link" href="#" class="btn-download" download onclick="onModalDirectDownloadClick()">Download .tar</a></div>
+              <div class="info-val"><a id="modal-tar-link" href="#" class="btn-download" download data-action="modal-download">Download .tar</a></div>
             </div>
           </div>
 
@@ -420,7 +457,7 @@ gh pr create --fill</code></pre>
           <div class="code-block-wrapper" style="margin-bottom: 20px;">
             <div class="code-block-header">
               <span>CLI Installation</span>
-              <button class="btn-copy" id="btn-modal-install-copy">Copy</button>
+              <button class="btn-copy" id="btn-modal-install-copy" data-action="copy-from" data-source-id="modal-install-cmd" data-toast="Install command copied">Copy</button>
             </div>
             <pre><code id="modal-install-cmd">dpm add sparks/crypto_core</code></pre>
           </div>
@@ -428,7 +465,7 @@ gh pr create --fill</code></pre>
           <div class="code-block-wrapper">
             <div class="code-block-header">
               <span>Example Usage (src/main.dtr)</span>
-              <button class="btn-copy" id="btn-modal-code-copy">Copy Code</button>
+              <button class="btn-copy" id="btn-modal-code-copy" data-action="copy-from" data-source-id="modal-code-example" data-toast="Code example copied">Copy Code</button>
             </div>
             <pre><code id="modal-code-example"></code></pre>
           </div>
@@ -482,7 +519,7 @@ gh pr create --fill</code></pre>
 
           <div class="code-block-wrapper">
             <div class="code-block-header">
-              <span>Determinism Receipt</span>
+              <span>Determinism Receipt (only shown when the publisher includes one)</span>
             </div>
             <pre><code id="modal-receipt"></code></pre>
           </div>
@@ -493,7 +530,7 @@ gh pr create --fill</code></pre>
           <div class="code-block-wrapper">
             <div class="code-block-header">
               <span>Schema 1 Package JSON</span>
-              <button class="btn-copy" id="btn-modal-manifest-copy">Copy JSON</button>
+              <button class="btn-copy" id="btn-modal-manifest-copy" data-action="copy-from" data-source-id="modal-manifest-json" data-toast="Manifest JSON copied">Copy JSON</button>
             </div>
             <pre><code id="modal-manifest-json"></code></pre>
           </div>
@@ -512,7 +549,7 @@ gh pr create --fill</code></pre>
         <strong>Sparks Package Registry</strong> &bull; Built for <strong>Datara 1.0.0</strong>. Distributed on GitHub Pages.
       </div>
       <div class="footer-links">
-        <a href="https://github.com/waters1ze/datara" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/datara-lang/datara" target="_blank" rel="noopener">GitHub</a>
         <a href="index.json">index.json</a>
         <a href="schema.json">schema.json</a>
         <a href="#protocol-section">Protocol Spec</a>
@@ -520,6 +557,19 @@ gh pr create --fill</code></pre>
     </div>
   </footer>
 
-  <script src="app.js?v=1.0.6"></script>
+  <!-- Modules are classic scripts, not ES modules: a `type="module"` fetch is
+       blocked on a file:// origin, and opening this page straight from disk is
+       a supported offline path. Load order is explicit and significant. -->
+  <script src="src/core.js?v=1.0.9"></script>
+  <script src="src/util.js?v=1.0.9"></script>
+  <script src="src/markdown.js?v=1.0.9"></script>
+  <script src="src/store.js?v=1.0.9"></script>
+  <script src="src/registry.js?v=1.0.9"></script>
+  <script src="src/counters.js?v=1.0.9"></script>
+  <script src="src/catalog.js?v=1.0.9"></script>
+  <script src="src/modal.js?v=1.0.9"></script>
+  <script src="src/generator.js?v=1.0.9"></script>
+  <script src="src/actions.js?v=1.0.9"></script>
+  <script src="app.js?v=1.0.9"></script>
 </body>
 </html>

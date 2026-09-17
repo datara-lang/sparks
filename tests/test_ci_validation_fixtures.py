@@ -122,6 +122,128 @@ def test_fixture_6_semver_invalid():
     assert any("Invalid version" in e or "Schema validation error" in e for e in errs), f"Expected semver error, got {errs}"
     print("[PASS] Fixture 6: semver_invalid caught")
 
+
+def _tar_without_sidecar():
+    """A tarball with no capabilities.json, signed and digested consistently."""
+    seed = bytes.fromhex("11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff")
+    priv = ed25519.Ed25519PrivateKey.from_private_bytes(seed)
+    tar_bytes = build_deterministic_tar({"main.dtr": "fn main() {}\n"})
+    import hashlib
+    manifest = {
+        "schema": 1,
+        "name": "sparks/fixture_no_sidecar",
+        "version": "1.0.0",
+        "description": "No sidecar fixture",
+        "author": "Fixture Author <author@datara.dev>",
+        "license": "MIT",
+        "tarball_url": "tarballs/fixture_no_sidecar-1.0.0.tar",
+        "sha256": hashlib.sha256(tar_bytes).hexdigest(),
+        "public_key": priv.public_key().public_bytes_raw().hex(),
+        "signature": priv.sign(tar_bytes).hex(),
+        "capabilities": [],
+        "dependencies": {},
+    }
+    return manifest, tar_bytes
+
+
+def test_fixture_7_missing_sidecar_rejected():
+    """A sidecar-less tarball makes the client's E-SPARKS-002 check unreachable.
+
+    The old validator only flagged this when the manifest declared capabilities, so a
+    package declaring [] and shipping no sidecar passed while being unverifiable.
+    """
+    schema = load_json(os.path.join(ROOT, "schema.json"))
+    manifest, tar_bytes = _tar_without_sidecar()
+    errs = validate_package_entry(manifest, tar_bytes, schema, "fixture_no_sidecar")
+    assert any("lacks capabilities.json sidecar" in e for e in errs), \
+        f"Expected missing-sidecar rejection, got {errs}"
+    print("[PASS] Fixture 7: missing capabilities.json sidecar caught")
+
+
+def test_fixture_8_grandfathered_sidecar_is_warning_not_error():
+    """An already-published, immutable artifact is warned about, not failed.
+
+    POLICY.md section 2 forbids mutating a published version, so sparks/forgen_ai
+    1.4.0 cannot be repaired in place. It must stay visible without blocking CI.
+    """
+    import validate_registry as vr
+    schema = load_json(os.path.join(ROOT, "schema.json"))
+    manifest, tar_bytes = _tar_without_sidecar()
+    manifest["name"] = "sparks/forgen_ai"
+    manifest["version"] = "1.4.0"
+    vr.WARNINGS.clear()
+    errs = validate_package_entry(manifest, tar_bytes, schema, "sparks/forgen_ai v1.4.0")
+    assert not any("lacks capabilities.json" in e for e in errs), \
+        f"Grandfathered package must not be a hard error, got {errs}"
+    assert any("grandfathered" in w for w in vr.WARNINGS), \
+        f"Grandfathered package must still be reported as a warning, got {vr.WARNINGS}"
+    print("[PASS] Fixture 8: grandfathered missing sidecar warned, not failed")
+
+
+def _temp_registry_copy():
+    tmp = tempfile.mkdtemp(prefix="sparks_fixture_")
+    dest = os.path.join(tmp, "sparks")
+    shutil.copytree(
+        ROOT, dest,
+        ignore=shutil.ignore_patterns(".git", "__pycache__", "node_modules"),
+    )
+    return tmp, dest
+
+
+def test_fixture_9_root_and_exact_manifest_drift():
+    """packages/<id>.json and packages/<id>/<latest>.json must describe one artifact."""
+    import validate_registry as vr
+    tmp, dest = _temp_registry_copy()
+    try:
+        root_path = os.path.join(dest, "packages", "crypto_core.json")
+        data = load_json(root_path)
+        data["description"] = "drifted description"
+        with open(root_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        errs = vr.validate_full_registry(dest)
+        assert any("disagree on 'description'" in e for e in errs), \
+            f"Expected root/exact manifest drift to be caught, got {errs}"
+        print("[PASS] Fixture 9: root-snapshot vs exact-release manifest drift caught")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_fixture_10_index_disagrees_with_manifest():
+    """The catalog displays index.json; it must not show a digest the artifact lacks."""
+    import validate_registry as vr
+    tmp, dest = _temp_registry_copy()
+    try:
+        index_path = os.path.join(dest, "index.json")
+        data = load_json(index_path)
+        for entry in data["packages"]:
+            if entry["name"] == "sparks/crypto_core":
+                entry["sha256"] = "0" * 64
+        with open(index_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        errs = vr.validate_full_registry(dest)
+        assert any("index.json 'sha256' disagrees" in e for e in errs), \
+            f"Expected index/manifest digest disagreement to be caught, got {errs}"
+        print("[PASS] Fixture 10: index.json vs manifest disagreement caught")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_fixture_11_index_version_list_vs_disk():
+    """An advertised version with no manifest on disk is not installable."""
+    import validate_registry as vr
+    tmp, dest = _temp_registry_copy()
+    try:
+        stray = os.path.join(dest, "packages", "crypto_core", "9.9.9.json")
+        with open(stray, "w", encoding="utf-8") as f:
+            json.dump({"schema": 1, "name": "sparks/crypto_core", "version": "9.9.9"}, f)
+        errs = vr.validate_full_registry(dest)
+        assert any("index.json advertises versions" in e for e in errs), \
+            f"Expected index/disk version-list mismatch to be caught, got {errs}"
+        print("[PASS] Fixture 11: index version list vs on-disk manifests caught")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 if __name__ == "__main__":
     test_fixture_1_schema_invalid()
     test_fixture_2_sha256_tampered()
@@ -129,4 +251,9 @@ if __name__ == "__main__":
     test_fixture_4_capability_mismatch()
     test_fixture_5_path_traversal()
     test_fixture_6_semver_invalid()
-    print("ALL 6 NEGATIVE CI VALIDATION FIXTURES CAUGHT CLEANLY!")
+    test_fixture_7_missing_sidecar_rejected()
+    test_fixture_8_grandfathered_sidecar_is_warning_not_error()
+    test_fixture_9_root_and_exact_manifest_drift()
+    test_fixture_10_index_disagrees_with_manifest()
+    test_fixture_11_index_version_list_vs_disk()
+    print("ALL 11 NEGATIVE CI VALIDATION FIXTURES CAUGHT CLEANLY!")

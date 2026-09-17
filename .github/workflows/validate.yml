@@ -20,6 +20,11 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Install Validation Dependencies
         run: |
           python -m pip install --upgrade pip
@@ -31,6 +36,9 @@ jobs:
       - name: Run CI Negative Fixture Tests
         run: python tests/test_ci_validation_fixtures.py
 
+      - name: Run Registry Storage-Layout Conformance Tests
+        run: python tests/test_registry_layout.py
+
       - name: Run Cryptographic Hygiene Tests
         run: python tests/test_phase0_crypto.py
 
@@ -39,4 +47,43 @@ jobs:
 
       - name: Run Web Catalog & XSS Tests
         run: python tests/test_web_catalog.py
+
+      - name: Run Web Catalog Behaviour Tests (DOM harness)
+        run: python tests/test_web_app_smoke.py
+
+  browser:
+    name: Real-Browser End-to-End
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Serve Registry and Run Browser Checks
+        run: |
+          python -m http.server 8099 --bind 127.0.0.1 &
+          SERVER_PID=$!
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:8099/index.json > /dev/null && break
+            sleep 1
+          done
+          set +e
+          node tests/browser_e2e_check.js
+          STATUS=$?
+          kill $SERVER_PID 2>/dev/null || true
+          exit $STATUS
 

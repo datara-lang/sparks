@@ -2,7 +2,7 @@
   "schema": 1,
   "name": "Sparks Official Package Registry",
   "description": "Zero-service, capability-native decentralized package registry for Datara",
-  "url": "https://waters1ze.github.io/sparks",
+  "url": "https://datara-lang.github.io/sparks",
   "mascot": "Spark (Datara Mascot)",
   "key_id": "datara-core-2026-v2",
   "public_key": "1e5b98204a627f872e09e8fb32e511abdc714b0f1b720d809b5e43e1ea97925d",

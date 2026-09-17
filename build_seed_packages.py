@@ -748,7 +748,7 @@ root_index = {
     "schema": 1,
     "name": "Sparks Official Package Registry",
     "description": "Zero-service, capability-native decentralized package registry for Datara",
-    "url": "https://waters1ze.github.io/sparks",
+    "url": "https://datara-lang.github.io/sparks",
     "mascot": "Spark (Datara Mascot)",
     "key_id": "datara-core-2026-v2",
     "public_key": pub_key_hex,

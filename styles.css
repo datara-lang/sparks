@@ -30,6 +30,9 @@
   --accent-heart-bg: rgba(244, 63, 94, 0.12);
   --accent-heart-hover: rgba(244, 63, 94, 0.22);
   --accent-heart-border: rgba(244, 63, 94, 0.35);
+  --accent-ok: #3fb950;
+  --accent-warn: #d29922;
+  --accent-danger: #f85149;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   --radius-sm: 4px;
@@ -671,7 +674,7 @@ code, pre, .mono {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: var(--bg-surface);
+  background: var(--bg-panel);
   color: var(--text-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
@@ -1390,3 +1393,462 @@ code, pre, .mono {
   100% { transform: scale(1); }
 }
 
+/* ================================================================== *
+ * Sparks 1.0.2 additions
+ * Favourites UI, keyboard focus, honest status labels, responsive polish.
+ * Iconography is inline SVG only - no emoji glyphs are used anywhere.
+ * ================================================================== */
+
+/* Anchor targets must clear the sticky header */
+#packages-section,
+#publish-section,
+#protocol-section {
+  scroll-margin-top: 76px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Keyboard focus stays visible; pointer clicks stay quiet */
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* Modal scroll lock */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* ---- Search: clear control + shortcut hint ---- */
+.search-input {
+  padding-right: 68px;
+}
+
+.search-clear {
+  position: absolute;
+  right: 38px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  transition: all var(--transition-fast);
+}
+
+.search-clear:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+/* An explicit display value would otherwise defeat the [hidden] attribute */
+.search-clear[hidden] {
+  display: none;
+}
+
+.search-input-wrapper:has(.search-input:not(:placeholder-shown)) .search-kbd {
+  opacity: 0;
+}
+
+/* ---- Favourites chip ---- */
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-chip svg {
+  transition: transform var(--transition-fast);
+}
+
+.filter-chip.filter-chip-fav:hover svg {
+  transform: scale(1.15);
+}
+
+.filter-chip.filter-chip-fav.active svg {
+  fill: currentColor;
+}
+
+.chip-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 10px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.filter-chip.filter-chip-fav.has-favorites .chip-count {
+  background: var(--accent-heart);
+  border-color: var(--accent-heart);
+  color: #ffffff;
+}
+
+.filter-chip.filter-chip-fav.active .chip-count {
+  background: rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+}
+
+/* ---- Favourites metric card ---- */
+.metric-card-fav .metric-val {
+  color: var(--accent-heart);
+}
+
+/* ---- Clickable package name ---- */
+.package-name {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  text-align: left;
+  cursor: pointer;
+  line-height: 1.3;
+}
+
+.package-name:hover {
+  color: #58a6ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---- Like controls: stable hit area + tabular counters ---- */
+.btn-like {
+  min-width: 46px;
+  justify-content: center;
+}
+
+.btn-like .like-count,
+.btn-like-modal span {
+  font-variant-numeric: tabular-nums;
+}
+
+.btn-like[aria-pressed="true"] .like-count {
+  color: var(--accent-heart);
+}
+
+/* ---- Empty state ---- */
+.empty-state-icon {
+  display: flex;
+  justify-content: center;
+  color: var(--accent-heart);
+  opacity: 0.6;
+  margin-bottom: 14px;
+}
+
+/* ---- Toast variants ---- */
+.toast-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-ok);
+  flex-shrink: 0;
+}
+
+.toast.toast-ok {
+  border-color: var(--border-subtle);
+}
+
+.toast.toast-warn {
+  border-color: var(--accent-warn);
+}
+
+.toast.toast-warn .toast-icon {
+  color: var(--accent-warn);
+}
+
+.toast.toast-favorite {
+  border-color: var(--accent-heart-border);
+}
+
+.toast.toast-favorite .toast-icon {
+  color: var(--accent-heart);
+}
+
+/* ---- Generator status readout ---- */
+.preview-status {
+  font-size: 11px;
+}
+
+.preview-status.ok {
+  color: var(--accent-ok);
+}
+
+.preview-status.warn {
+  color: var(--accent-warn);
+}
+
+/* ---- Capability audit ---- */
+.cap-audit-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.cap-audit-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cap-audit-desc {
+  color: var(--text-secondary);
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.cap-audit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cap-audit-intro {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.cap-audit-token {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+/* ---- Favourites metric inside the modal ---- */
+.like-metric {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.like-metric svg {
+  color: var(--accent-heart);
+}
+
+.like-metric-note {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 1px 6px;
+}
+
+/* ---- Versions table ---- */
+.btn-copy-inline {
+  font-size: 11px;
+  padding: 4px 8px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+
+.btn-copy-inline:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+.ver-latest-badge {
+  margin-left: 6px;
+}
+
+.versions-table .ver-size {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 720px) {
+  .nav-container {
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .nav-links {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .main-content {
+    padding: 20px 14px 48px;
+  }
+
+  .hero-section {
+    padding: 24px 8px 24px;
+  }
+
+  .hero-title {
+    font-size: 26px;
+  }
+
+  .hero-desc {
+    font-size: 14px;
+  }
+
+  .packages-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .search-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .guide-section {
+    padding: 20px 16px;
+  }
+
+  .card-bottom {
+    flex-wrap: wrap;
+  }
+
+  .modal-overlay {
+    padding: 0;
+  }
+
+  .modal-content {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .modal-tabs {
+    gap: 12px;
+    overflow-x: auto;
+  }
+
+  .toast-container {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .package-card:hover {
+    transform: none;
+  }
+}
+
+
+/* ================================================================== *
+ * Sparks 1.0.3 additions
+ *
+ * 1. Community counter status pill - states plainly which numbers are
+ *    measured and which are only published.
+ * 2. Honest download badge styling - a measured value is solid, a value the
+ *    manifest merely claims is dashed and amber.
+ * ================================================================== */
+
+/* ---- Community counter status ---- */
+.counter-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  margin: 0 0 24px;
+  padding: 6px 13px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-muted);
+  border-radius: 999px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.counter-dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.counter-status[data-state="connecting"] .counter-dot {
+  animation: sparksCounterPulse 1.4s ease-in-out infinite;
+}
+
+.counter-status[data-state="live"] {
+  color: var(--accent-ok);
+  border-color: rgba(63, 185, 80, 0.35);
+}
+.counter-status[data-state="live"] .counter-dot {
+  background: var(--accent-ok);
+  box-shadow: 0 0 0 3px rgba(63, 185, 80, 0.15);
+}
+
+.counter-status[data-state="throttled"],
+.counter-status[data-state="unavailable"] {
+  color: var(--accent-warn);
+  border-color: rgba(210, 153, 34, 0.35);
+}
+.counter-status[data-state="throttled"] .counter-dot,
+.counter-status[data-state="unavailable"] .counter-dot {
+  background: var(--accent-warn);
+}
+
+.counter-status[data-state="disabled"] .counter-dot {
+  background: var(--border-hover);
+}
+
+@keyframes sparksCounterPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* ---- Download badge: measured vs merely published ---- */
+.badge-downloads {
+  font-variant-numeric: tabular-nums;
+}
+
+.badge-downloads[data-source="manifest"] {
+  border-style: dashed;
+  border-color: rgba(210, 153, 34, 0.5);
+  color: var(--accent-warn);
+}
+
+.badge-downloads[data-source="none"] {
+  opacity: 0.72;
+}
+
+/* ---- Appreciation source note in the modal ---- */
+.like-metric-note {
+  margin-left: 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}

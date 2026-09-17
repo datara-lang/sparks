@@ -92,6 +92,13 @@
       },
       "description": "List of all published versions"
     },
+    "versions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of all published versions (index.json catalog format)"
+    },
     "capabilities": {
       "type": "array",
       "items": {

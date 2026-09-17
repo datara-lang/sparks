@@ -40,6 +40,21 @@ SEMVER_REGEX = re.compile(
 PACKAGE_NAME_REGEX = re.compile(r"^sparks/[a-zA-Z0-9_-]+$")
 MAX_TARBALL_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 
+# Packages published before the capability-sidecar requirement was enforced.
+#
+# POLICY.md section 2 makes a published version's tarball permanently immutable,
+# so a sidecar-less artifact cannot be repaired in place: the bytes are signed and
+# changing them would invalidate both the SHA-256 digest and the ed25519 signature.
+# The only conforming remedy is a new SemVer release. These entries are therefore
+# grandfathered as warnings rather than errors, so CI stays green while the gap
+# remains visible and auditable. New packages are never added here.
+GRANDFATHERED_MISSING_SIDECAR = {
+    ("sparks/forgen_ai", "1.4.0"),
+}
+
+# Collected non-fatal findings, printed after the fatal ones.
+WARNINGS = []
+
 def load_json(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -155,11 +170,25 @@ def validate_package_entry(manifest, tar_bytes, schema, pkg_label):
                             f"manifest declared {manifest_caps}, but tarball contains {sidecar_caps}"
                         )
             else:
+                # A tarball with no sidecar makes the client's capability cross-check
+                # unreachable: registry.rs::install_sparks_manifest only runs the
+                # E-SPARKS-002 comparison `if let Some(sidecar) = ...`, so a package
+                # that declares zero capabilities and ships no sidecar is never
+                # verified at all. Require the sidecar unconditionally.
                 manifest_caps = manifest.get("capabilities", [])
-                if manifest_caps:
+                ident = (manifest.get("name"), str(manifest.get("version")))
+                if ident in GRANDFATHERED_MISSING_SIDECAR:
+                    WARNINGS.append(
+                        f"{pkg_label}: tarball lacks capabilities.json (grandfathered; "
+                        f"declared capabilities {manifest_caps}). Cannot be repaired in place "
+                        f"because published versions are immutable - publish a new SemVer "
+                        f"release with a sidecar to clear this."
+                    )
+                else:
                     errors.append(
-                        f"{pkg_label}: Manifest declared capabilities {manifest_caps}, "
-                        f"but tarball lacks capabilities.json sidecar"
+                        f"{pkg_label}: Tarball lacks capabilities.json sidecar. The client's "
+                        f"capability cross-check is silently skipped without it "
+                        f"(manifest declared {manifest_caps})."
                     )
     except Exception as e:
         errors.append(f"{pkg_label}: Failed to inspect capabilities.json: {e}")
@@ -168,6 +197,7 @@ def validate_package_entry(manifest, tar_bytes, schema, pkg_label):
 
 def validate_full_registry(root_dir=SPARKS_ROOT):
     errors = []
+    WARNINGS.clear()
     print("=== Sparks Registry Comprehensive Validator ===")
 
     index_path = os.path.join(root_dir, "index.json")
@@ -223,6 +253,7 @@ def validate_full_registry(root_dir=SPARKS_ROOT):
 
         # Check latest manifest packages/<raw_id>.json
         root_manifest_path = os.path.join(packages_dir, f"{raw_id}.json")
+        root_m = None
         if not os.path.exists(root_manifest_path):
             errors.append(f"Missing root manifest: {root_manifest_path}")
         else:
@@ -235,7 +266,40 @@ def validate_full_registry(root_dir=SPARKS_ROOT):
             except Exception as e:
                 errors.append(f"Failed to read {root_manifest_path}: {e}")
 
+        # index.json drives the public catalog, so every field it displays must agree
+        # with the manifest the client actually installs. Nothing else enforces this:
+        # the client never reads index.json, so a stale catalog value would otherwise
+        # never be caught. `downloads`/`likes` are live counters and are excluded.
+        if root_m is not None:
+            for field in ("sha256", "size_bytes", "capabilities", "description",
+                          "license", "author", "public_key", "signature", "tarball_url"):
+                if field in idx_pkg and idx_pkg.get(field) != root_m.get(field):
+                    errors.append(
+                        f"{name}: index.json '{field}' disagrees with the root manifest "
+                        f"(index={idx_pkg.get(field)!r}, manifest={root_m.get(field)!r})"
+                    )
+
         versions_to_check = idx_pkg.get("versions", [version])
+
+        # The index's version list must match the version manifests actually on disk,
+        # otherwise a package can be advertised in the catalog but not installable
+        # (or installable but undiscoverable).
+        version_dir = os.path.join(packages_dir, raw_id)
+        if os.path.isdir(version_dir):
+            on_disk = sorted(
+                f[:-5] for f in os.listdir(version_dir) if f.endswith(".json")
+            )
+            declared = sorted(str(v) for v in versions_to_check)
+            if on_disk != declared:
+                errors.append(
+                    f"{name}: index.json advertises versions {declared} but "
+                    f"packages/{raw_id}/ contains {on_disk}"
+                )
+            if version not in on_disk:
+                errors.append(
+                    f"{name}: latest_version '{version}' has no manifest in packages/{raw_id}/"
+                )
+
         for v in versions_to_check:
             # Check version manifest packages/<raw_id>/<v>.json
             ver_manifest_path = os.path.join(packages_dir, raw_id, f"{v}.json")
@@ -265,6 +329,38 @@ def validate_full_registry(root_dir=SPARKS_ROOT):
             if not pkg_errs:
                 sha_disp = clean_hex_sha256(ver_m.get("sha256", ""))[:12]
                 print(f"[OK] {name} v{v} verified clean (sha256:{sha_disp}...)")
+
+        # packages/<raw_id>.json and packages/<raw_id>/<latest>.json are two paths to
+        # the same release. The publish script writes both, so they can silently drift
+        # (one path gaining a field the other never got). They must describe the same
+        # artifact on every client-relevant field.
+        if root_m is not None and version:
+            latest_path = os.path.join(packages_dir, raw_id, f"{version}.json")
+            if os.path.exists(latest_path):
+                try:
+                    latest_m = load_json(latest_path)
+                    for field in ("schema", "name", "version", "description", "author",
+                                  "license", "tarball_url", "sha256", "public_key",
+                                  "signature", "capabilities"):
+                        if root_m.get(field) != latest_m.get(field):
+                            errors.append(
+                                f"{name}: root snapshot packages/{raw_id}.json and exact-release "
+                                f"manifest packages/{raw_id}/{version}.json disagree on '{field}'"
+                            )
+                    only_root = set(root_m) - set(latest_m)
+                    only_exact = set(latest_m) - set(root_m)
+                    for field in sorted(only_root):
+                        WARNINGS.append(
+                            f"{name}: '{field}' present in root snapshot but missing from "
+                            f"packages/{raw_id}/{version}.json"
+                        )
+                    for field in sorted(only_exact):
+                        WARNINGS.append(
+                            f"{name}: '{field}' present in packages/{raw_id}/{version}.json "
+                            f"but missing from the root snapshot"
+                        )
+                except Exception as e:
+                    errors.append(f"Failed to read {latest_path}: {e}")
 
     # Verify that every directory in packages/ is in index.json
     for entry in os.listdir(packages_dir):
@@ -296,11 +392,19 @@ def main():
         errs = validate_full_registry(args.root)
 
     if errs:
+        if WARNINGS:
+            print("\n[WARN] NON-FATAL FINDINGS (tracked, not blocking):")
+            for warning in WARNINGS:
+                print(f"  ! {warning}")
         print("\n[FAIL] VALIDATION FAILED WITH ERRORS:")
         for err in errs:
             print(f"  * {err}")
         sys.exit(1)
     else:
+        if WARNINGS:
+            print("\n[WARN] NON-FATAL FINDINGS (tracked, not blocking):")
+            for warning in WARNINGS:
+                print(f"  ! {warning}")
         print("\n[SUCCESS] ALL SPARKS MANIFESTS, TARBALLS, SIGNATURES & INDEX ARE 100% VALID!")
         sys.exit(0)
 

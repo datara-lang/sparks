@@ -10,7 +10,7 @@ If you discover a security vulnerability in the Sparks registry infrastructure, 
 
 ### Confidential Reporting Channels:
 - **Email:** `security@datara.dev`
-- **GitHub Security Advisory:** Submit a private vulnerability report via [GitHub Security Advisories](https://github.com/waters1ze/sparks/security/advisories/new).
+- **GitHub Security Advisory:** Submit a private vulnerability report via [GitHub Security Advisories](https://github.com/datara-lang/sparks/security/advisories/new).
 
 Please include:
 1. A clear description of the vulnerability and its potential impact.
