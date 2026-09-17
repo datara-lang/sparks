@@ -22,7 +22,7 @@ window.Sparks = window.Sparks || {};
 (function (Sparks) {
   'use strict';
 
-  Sparks.VERSION = '1.0.4';
+  Sparks.VERSION = '1.4.3';
 
   Sparks.CONFIG = {
     indexUrl: 'index.json',

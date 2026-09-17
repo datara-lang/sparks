@@ -81,7 +81,7 @@
       capabilities: pkg.capabilities || [],
       dependencies: pkg.dependencies || {},
       tags: pkg.tags || [],
-      all_versions: versions
+      versions: versions
     };
     setText('modal-manifest-json', JSON.stringify(manifestObj, null, 2));
 

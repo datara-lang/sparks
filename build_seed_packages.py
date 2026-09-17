@@ -689,7 +689,7 @@ for raw_id, versions in packages_by_id.items():
             "tags": pkg["tags"],
             "sample_usage": pkg["sample_usage"],
             "readme": readme_text,
-            "all_versions": all_ver_strings
+            "versions": all_ver_strings
         }
 
         # Write packages/<name>/<version>.json

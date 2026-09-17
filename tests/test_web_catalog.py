@@ -173,6 +173,19 @@ def test_index_html_uses_delegated_actions_only():
     print(f"[PASS] test_index_html_uses_delegated_actions_only ({len(actions)} actions)")
 
 
+def test_no_class_keyword_in_web_app():
+    class_decl_re = re.compile(r"(?<!['\"/\w])class\s+[A-Z]")
+    offenders = []
+    all_js = WEB_JS + sorted(glob.glob(os.path.join(ROOT, "tests", "*.js")))
+    for path in all_js:
+        content = _read(path)
+        for i, line in enumerate(content.splitlines(), 1):
+            if class_decl_re.search(line):
+                offenders.append(f"{os.path.relpath(path, ROOT)}:{i}: {line.strip()}")
+    assert not offenders, f"ES6 class declarations banned across web scripts:\n" + "\n".join(offenders)
+    print(f"[PASS] test_no_class_keyword_in_web_app ({len(all_js)} files)")
+
+
 if __name__ == "__main__":
     test_node_check_all_web_scripts()
     test_no_hardcoded_dummy_hashes_in_web_app()
@@ -180,4 +193,6 @@ if __name__ == "__main__":
     test_empty_index_fallback()
     test_counter_config_matches_provisioning_script()
     test_index_html_uses_delegated_actions_only()
+    test_no_class_keyword_in_web_app()
     print("ALL PHASE 6 WEB CATALOG TESTS PASSED!")
+

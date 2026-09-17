@@ -26,7 +26,7 @@
   ],
   "sample_usage": "use sparks/toy_kv\n\nfn main(cap_read: Capability<FileRead>, cap_write: Capability<FileWrite>) {\n    let mut db = toy_kv.ToyKV.open(\"data.kv\", cap_read)\n    db.set(\"user:1\", \"alice\", cap_write)\n    let val = db.get(\"user:1\")\n    println(val)\n}",
   "readme": "# toy_kv\n\nCapability-governed embedded key-value storage engine for Datara.\n\n## Security & Capability Verification\n`toy_kv` cannot access disks or read files without callers providing compile-time capability tokens:\n- **`Capability<FileRead>`**: Required to open and read index files.\n- **`Capability<FileWrite>`**: Required to commit mutations to disk.\n\nIf a caller application lacks these permissions in `datara.toml`, compilation fails at compile-time with a capability security error.\n\n## Example\n```datara\nuse sparks/toy_kv\n\nfn main(cap_read: Capability<FileRead>, cap_write: Capability<FileWrite>) {\n    let mut store = toy_kv.ToyKV.open(\"app.kv\", cap_read)\n    store.set(\"session_id\", \"xyz_token_884\", cap_write)\n\n    let session = store.get(\"session_id\")\n    println(\"Loaded session: \" + session)\n}\n```\n",
-  "all_versions": [
+  "versions": [
     "1.0.0",
     "0.9.0"
   ]

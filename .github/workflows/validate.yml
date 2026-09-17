@@ -45,6 +45,9 @@ jobs:
       - name: Run Publishing & Signature Tests
         run: python tests/test_publish_and_signatures.py
 
+      - name: Run Publishing End-to-End Integration Tests
+        run: python tests/test_publish_integration.py
+
       - name: Run Web Catalog & XSS Tests
         run: python tests/test_web_catalog.py
 

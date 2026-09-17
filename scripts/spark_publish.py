@@ -200,23 +200,16 @@ def publish_package(
     with open(tar_dest, "wb") as f:
         f.write(tar_bytes)
 
-    # Write version manifest: packages/<raw_id>/<version>.json
-    pkg_ver_dir = os.path.join(packages_dir, raw_id)
-    os.makedirs(pkg_ver_dir, exist_ok=True)
-    ver_manifest_path = os.path.join(pkg_ver_dir, f"{version}.json")
-    with open(ver_manifest_path, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
-
-    # Write or update latest manifest: packages/<raw_id>.json
+    # Compute all published versions including this one
     root_manifest_path = os.path.join(packages_dir, f"{raw_id}.json")
-    all_versions = [version]
+    versions_list = [version]
     if os.path.exists(root_manifest_path):
         try:
             with open(root_manifest_path, "r", encoding="utf-8") as rmf:
                 existing_root = json.load(rmf)
-                all_versions = existing_root.get("all_versions", [])
-                if version not in all_versions:
-                    all_versions.append(version)
+                versions_list = existing_root.get("versions", existing_root.get("all_versions", []))
+                if version not in versions_list:
+                    versions_list.append(version)
         except Exception:
             pass
 
@@ -233,8 +226,17 @@ def publish_package(
             parts.append(int(num) if num else 0)
         return parts
 
-    all_versions.sort(key=semver_sort_key)
-    latest_ver = all_versions[-1]
+    versions_list.sort(key=semver_sort_key)
+    latest_ver = versions_list[-1]
+    sorted_versions_desc = versions_list[::-1]
+
+    # Write version manifest: packages/<raw_id>/<version>.json
+    manifest["versions"] = sorted_versions_desc
+    pkg_ver_dir = os.path.join(packages_dir, raw_id)
+    os.makedirs(pkg_ver_dir, exist_ok=True)
+    ver_manifest_path = os.path.join(pkg_ver_dir, f"{version}.json")
+    with open(ver_manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
 
     # Also write packages/<raw_id>/README.md if readme_text is present
     if readme_text:
@@ -243,10 +245,11 @@ def publish_package(
             rf.write(readme_text)
 
     pkg_manifest_copy = dict(manifest)
-    pkg_manifest_copy["all_versions"] = all_versions[::-1]  # descending for display
+    pkg_manifest_copy["versions"] = sorted_versions_desc
     pkg_manifest_copy["version"] = latest_ver
     with open(root_manifest_path, "w", encoding="utf-8") as f:
         json.dump(pkg_manifest_copy, f, indent=2)
+
 
     # Update index.json
     index_path = os.path.join(registry_root, "index.json")
@@ -275,7 +278,7 @@ def publish_package(
                 "downloads": p.get("downloads", 0),
                 "likes": p.get("likes", 0)
             })
-            p["versions"] = all_versions[::-1]
+            p["versions"] = sorted_versions_desc
             entry_found = True
             break
 
@@ -296,7 +299,7 @@ def publish_package(
             "key_id": key_id,
             "sample_usage": manifest["sample_usage"],
             "readme": readme_text,
-            "versions": all_versions[::-1],
+            "versions": sorted_versions_desc,
             "size_bytes": content_size,
             "downloads": 0,
             "likes": 0

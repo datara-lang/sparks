@@ -93,7 +93,7 @@ def main() -> int:
               f"{pid}: root manifest version {root.get('version')!r} != index latest_version {latest!r}")
 
         # --- 2. Client path: packages/<name>/<version>.json -----------------
-        versions = entry.get("versions") or entry.get("all_versions") or []
+        versions = entry.get("versions") or []
         check(bool(versions), f"{pid}: index exposes no version list")
         for version in versions:
             version_path = PACKAGES / pid / f"{version}.json"
@@ -185,19 +185,11 @@ def main() -> int:
         check(tarball.stat().st_size > 0, f"orphan: tarballs/{tarball.name} is empty")
 
     # --- 7. Catalog-only field naming ---------------------------------------
-    # The web catalog reads `versions`; schema.json documents `all_versions`.
-    # Neither is read by the client. We assert they agree wherever both appear.
-    for entry in entries:
-        pid = raw_id(entry.get("name", ""))
-        v = entry.get("versions")
-        av = entry.get("all_versions")
-        if v is not None and av is not None:
-            check(sorted(v) == sorted(av), f"{pid}: index `versions` and `all_versions` disagree")
+    # Canonical field name is `versions` across schema.json, index.json and manifests.
     schema_has_versions = "versions" in schema_props
+    check(schema_has_versions, "schema.json must document `versions`")
     schema_has_all = "all_versions" in schema_props
-    if not schema_has_versions and schema_has_all:
-        print("[note] schema.json documents `all_versions`; the web catalog reads `versions`. "
-              "Harmless (additionalProperties unset) but worth aligning.")
+    check(not schema_has_all, "schema.json must not document deprecated `all_versions`")
 
     print(f"\n{checks} checks, {len(failures)} failure(s)")
     for failure in failures:

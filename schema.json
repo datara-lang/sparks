@@ -85,19 +85,12 @@
       "type": "string",
       "description": "Full Markdown documentation and API guide"
     },
-    "all_versions": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "List of all published versions"
-    },
     "versions": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "List of all published versions (index.json catalog format)"
+      "description": "List of all published versions"
     },
     "capabilities": {
       "type": "array",

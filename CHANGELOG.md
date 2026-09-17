@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.3] - 2026-09-17
+
+### Fixed
+- **Eliminated `class` keyword completely from both package code and web test infrastructure.**
+  - All 23 `class` declarations in `forgen_ai`'s 11 `.dtr` files (`baseline.dtr`, `benchmarks.dtr`, `code_eval.dtr`, `epistemic.dtr`, `governor.dtr`, `graphs.dtr`, `memory.dtr`, `neural_core.dtr`, `project_analysis.dtr`, `ui.dtr`, `verifier.dtr`) were migrated to Data-Oriented Design `struct` declarations. Compiling these packages now emits zero deprecation warnings.
+  - `tests/web_dom_harness.js` ES6 class declarations (`ClassList`, `Element`) were rewritten as clean ES5 constructor functions with prototype methods and `Object.defineProperty` getters/setters.
+  - Added strict lint guards in `tests/test_web_catalog.py` and GitHub Actions CI (`validate.yml`) preventing any ES6 `class` declaration from ever returning.
+
+### Added
+- **`sparks/forgen_ai@1.4.1` published:** Carries the missing `capabilities.json` sidecar with `{"capabilities": []}`, enabling client-side capability verification (`E-SPARKS-002`) and clearing the manifest drift warning.
+- **`tests/test_publish_integration.py`:** Full end-to-end integration test validating the package publishing workflow from `spark_publish.py` to `validate_registry.py` and real `dpm add` installation. Wired into CI.
+
+### Changed
+- **Unification of `all_versions` to `versions` everywhere:** Standardized on `versions` as the single canonical field name across `schema.json`, `index.json`, and all 15 package manifests (`packages/*.json` root snapshots and `packages/*/*.json` exact-release manifests).
+- Removed deprecated `all_versions` property from `schema.json`.
+- Removed fallback logic from `src/registry.js` `getVersionList()`.
+- Bumped catalog asset cache busters to `?v=1.4.3` and `Sparks.VERSION` to `1.4.3`.
+
+---
+
 ## [1.0.4] - 2026-09-15
 
 ### Fixed

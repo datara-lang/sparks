@@ -23,7 +23,7 @@
   ],
   "sample_usage": "use sparks/crypto_core\n\nfn main() {\n    let a: [Byte] = [0xDE, 0xAD]\n    let b: [Byte] = [0xDE, 0xAD]\n    println(crypto_core.constant_time_eq(a, b))\n}",
   "readme": "# crypto_core v0.9.0\n\nInitial preview release of cryptographic primitives for the Datara programming language.\n\n## Features\n- `constant_time_eq`: Constant-time byte slice comparison to mitigate timing attacks.\n- `rotl32`: 32-bit bitwise left rotation.\n\n## Installation\n```bash\ndpm add sparks/crypto_core@0.9.0\n```\n",
-  "all_versions": [
+  "versions": [
     "1.0.0",
     "0.9.0"
   ]

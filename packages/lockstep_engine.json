@@ -23,7 +23,7 @@
   ],
   "sample_usage": "use sparks/lockstep_engine\n\nfn main() {\n    let mut engine = lockstep_engine.LockstepEngine.new(60)\n    engine.queue_input(1, 0, 0x01)\n    let tick = engine.advance_tick()\n    println(tick)\n}",
   "readme": "# lockstep_engine\n\nDeterministic frame quantization and state synchronization engine for multiplayer games and robotic simulations in Datara.\n\n## Key Properties\n- **Bit-Identical Simulation**: Guarantees identical state progression across machines on identical input sequences.\n- **Rollback Ready**: State hash tracking per tick for fast desynchronization detection and recovery.\n- **Pure Sandbox Safe**: Requires 0 capabilities.\n",
-  "all_versions": [
+  "versions": [
     "1.0.0"
   ]
 }

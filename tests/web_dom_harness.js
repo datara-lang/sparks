@@ -72,203 +72,203 @@ function parseAttrs(str) {
   return attrs;
 }
 
-class ClassList {
-  constructor(el) {
-    this.el = el;
-  }
-  _set() {
-    return new Set(String(this.el.getAttribute('class') || '').split(/\s+/).filter(Boolean));
-  }
-  _write(set) {
-    this.el.setAttribute('class', Array.from(set).join(' '));
-  }
-  add(...names) {
-    const set = this._set();
-    names.forEach(n => set.add(n));
-    this._write(set);
-  }
-  remove(...names) {
-    const set = this._set();
-    names.forEach(n => set.delete(n));
-    this._write(set);
-  }
-  contains(name) {
-    return this._set().has(name);
-  }
-  toggle(name, force) {
-    const has = this.contains(name);
-    const shouldHave = force === undefined ? !has : Boolean(force);
-    if (shouldHave) this.add(name); else this.remove(name);
-    return shouldHave;
-  }
+/* ClassList — ES5 constructor + prototype (no class keyword). */
+function ClassList(el) {
+  this.el = el;
+}
+ClassList.prototype._set = function () {
+  return new Set(String(this.el.getAttribute('class') || '').split(/\s+/).filter(Boolean));
+};
+ClassList.prototype._write = function (set) {
+  this.el.setAttribute('class', Array.from(set).join(' '));
+};
+ClassList.prototype.add = function () {
+  var set = this._set();
+  Array.prototype.forEach.call(arguments, function (n) { set.add(n); });
+  this._write(set);
+};
+ClassList.prototype.remove = function () {
+  var set = this._set();
+  Array.prototype.forEach.call(arguments, function (n) { set.delete(n); });
+  this._write(set);
+};
+ClassList.prototype.contains = function (name) {
+  return this._set().has(name);
+};
+ClassList.prototype.toggle = function (name, force) {
+  var has = this.contains(name);
+  var shouldHave = force === undefined ? !has : Boolean(force);
+  if (shouldHave) this.add(name); else this.remove(name);
+  return shouldHave;
+};
+
+/* Element — ES5 constructor + prototype + Object.defineProperty for
+ * getters/setters (no class keyword). */
+function Element(tagName, attrs, doc) {
+  this.tagName = String(tagName).toUpperCase();
+  this.doc = doc;
+  this._attrs = Object.assign({}, attrs || {});
+  this.childNodes = [];
+  this.parentNode = null;
+  this.style = {};
+  this._html = null;
+  this._text = null;
+  this._listeners = {};
+  this.classList = new ClassList(this);
 }
 
-class Element {
-  constructor(tagName, attrs, doc) {
-    this.tagName = String(tagName).toUpperCase();
-    this.doc = doc;
-    this._attrs = Object.assign({}, attrs || {});
-    this.childNodes = [];
-    this.parentNode = null;
-    this.style = {};
-    this._html = null;
-    this._text = null;
-    this._listeners = {};
-    this.classList = new ClassList(this);
-  }
+/* --- attributes --- */
+Element.prototype.setAttribute = function (name, value) {
+  this._attrs[String(name).toLowerCase()] = String(value);
+};
+Element.prototype.getAttribute = function (name) {
+  var key = String(name).toLowerCase();
+  return Object.prototype.hasOwnProperty.call(this._attrs, key) ? this._attrs[key] : null;
+};
+Element.prototype.hasAttribute = function (name) {
+  return this.getAttribute(name) !== null;
+};
+Element.prototype._deleteAttr = function (name) {
+  delete this._attrs[String(name).toLowerCase()];
+};
 
-  /* --- attributes --- */
-  setAttribute(name, value) {
-    this._attrs[String(name).toLowerCase()] = String(value);
-  }
-  getAttribute(name) {
-    const key = String(name).toLowerCase();
-    return Object.prototype.hasOwnProperty.call(this._attrs, key) ? this._attrs[key] : null;
-  }
-  hasAttribute(name) {
-    return this.getAttribute(name) !== null;
-  }
+Object.defineProperty(Element.prototype, 'id', {
+  get: function () { return this.getAttribute('id') || ''; },
+  enumerable: true, configurable: true
+});
 
-  get id() {
-    return this.getAttribute('id') || '';
-  }
+Object.defineProperty(Element.prototype, 'className', {
+  get: function () { return this.getAttribute('class') || ''; },
+  set: function (value) { this.setAttribute('class', value); },
+  enumerable: true, configurable: true
+});
 
-  get className() {
-    return this.getAttribute('class') || '';
-  }
-  set className(value) {
-    this.setAttribute('class', value);
-  }
-
-  get hidden() {
-    return this.hasAttribute('hidden');
-  }
-  set hidden(value) {
+Object.defineProperty(Element.prototype, 'hidden', {
+  get: function () { return this.hasAttribute('hidden'); },
+  set: function (value) {
     if (value) this.setAttribute('hidden', ''); else this._deleteAttr('hidden');
-  }
-  _deleteAttr(name) {
-    delete this._attrs[String(name).toLowerCase()];
-  }
+  },
+  enumerable: true, configurable: true
+});
 
-  get value() {
-    return this.getAttribute('value') || '';
-  }
-  set value(v) {
-    this.setAttribute('value', v);
-  }
+Object.defineProperty(Element.prototype, 'value', {
+  get: function () { return this.getAttribute('value') || ''; },
+  set: function (v) { this.setAttribute('value', v); },
+  enumerable: true, configurable: true
+});
 
-  get title() {
-    return this.getAttribute('title') || '';
-  }
-  set title(v) {
-    this.setAttribute('title', v);
-  }
+Object.defineProperty(Element.prototype, 'title', {
+  get: function () { return this.getAttribute('title') || ''; },
+  set: function (v) { this.setAttribute('title', v); },
+  enumerable: true, configurable: true
+});
 
-  get href() {
-    return this.getAttribute('href') || '';
-  }
-  set href(v) {
-    this.setAttribute('href', v);
-  }
+Object.defineProperty(Element.prototype, 'href', {
+  get: function () { return this.getAttribute('href') || ''; },
+  set: function (v) { this.setAttribute('href', v); },
+  enumerable: true, configurable: true
+});
 
-  /* --- content --- */
-  get innerHTML() {
-    return this._html === null ? '' : this._html;
-  }
-  set innerHTML(html) {
+/* --- content --- */
+Object.defineProperty(Element.prototype, 'innerHTML', {
+  get: function () { return this._html === null ? '' : this._html; },
+  set: function (html) {
     this._html = String(html);
     this._text = null;
     this.childNodes = [];
     this._repaints = (this._repaints || 0) + 1;
-    const fragment = parseHtml(this._html, this.doc);
+    var fragment = parseHtml(this._html, this.doc);
     // slice(): appendChild detaches each node from the fragment, which would
     // otherwise mutate the list being iterated.
-    fragment.childNodes.slice().forEach(child => this.appendChild(child));
-  }
+    var self = this;
+    fragment.childNodes.slice().forEach(function (child) { self.appendChild(child); });
+  },
+  enumerable: true, configurable: true
+});
 
-  /* catalog.js paint() reads firstChild to decide whether a repaint is needed.
-   * Without this getter the guard is invisible to the harness and the no-repaint
-   * assertion below would pass vacuously. */
-  get firstChild() {
-    return this.childNodes.length ? this.childNodes[0] : null;
-  }
+/* catalog.js paint() reads firstChild to decide whether a repaint is needed.
+ * Without this getter the guard is invisible to the harness and the no-repaint
+ * assertion below would pass vacuously. */
+Object.defineProperty(Element.prototype, 'firstChild', {
+  get: function () { return this.childNodes.length ? this.childNodes[0] : null; },
+  enumerable: true, configurable: true
+});
 
-  get textContent() {
+Object.defineProperty(Element.prototype, 'textContent', {
+  get: function () {
     if (this.childNodes.length === 0) {
       return this._text === null ? (this._html === null ? '' : this._html) : this._text;
     }
-    return this.childNodes.map(child => child.textContent).join('');
-  }
-  set textContent(text) {
+    return this.childNodes.map(function (child) { return child.textContent; }).join('');
+  },
+  set: function (text) {
     this._text = String(text);
     this._html = null;
     this.childNodes = [];
-  }
+  },
+  enumerable: true, configurable: true
+});
 
-  appendChild(child) {
-    if (child.parentNode) child.parentNode.removeChild(child);
-    child.parentNode = this;
-    this.childNodes.push(child);
-    return child;
-  }
-  removeChild(child) {
-    const idx = this.childNodes.indexOf(child);
-    if (idx >= 0) this.childNodes.splice(idx, 1);
-    child.parentNode = null;
-    return child;
-  }
-  remove() {
-    if (this.parentNode) this.parentNode.removeChild(this);
-  }
+Element.prototype.appendChild = function (child) {
+  if (child.parentNode) child.parentNode.removeChild(child);
+  child.parentNode = this;
+  this.childNodes.push(child);
+  return child;
+};
+Element.prototype.removeChild = function (child) {
+  var idx = this.childNodes.indexOf(child);
+  if (idx >= 0) this.childNodes.splice(idx, 1);
+  child.parentNode = null;
+  return child;
+};
+Element.prototype.remove = function () {
+  if (this.parentNode) this.parentNode.removeChild(this);
+};
 
-  /* --- queries --- */
-  querySelectorAll(selector) {
-    const results = [];
-    selector.split(',').forEach(part => {
-      const chain = part.trim().split(/\s+/).filter(Boolean);
-      collectMatches(this, chain, 0, results);
-    });
-    return results;
+/* --- queries --- */
+Element.prototype.querySelectorAll = function (selector) {
+  var results = [];
+  selector.split(',').forEach(function (part) {
+    var chain = part.trim().split(/\s+/).filter(Boolean);
+    collectMatches(this, chain, 0, results);
+  }, this);
+  return results;
+};
+Element.prototype.querySelector = function (selector) {
+  var all = this.querySelectorAll(selector);
+  return all.length ? all[0] : null;
+};
+Element.prototype.closest = function (selector) {
+  var node = this;
+  while (node) {
+    if (matchesSimple(node, selector)) return node;
+    node = node.parentNode;
   }
+  return null;
+};
+Element.prototype.matches = function (selector) {
+  return matchesSimple(this, selector);
+};
 
-  querySelector(selector) {
-    const all = this.querySelectorAll(selector);
-    return all.length ? all[0] : null;
-  }
+/* --- events --- */
+Element.prototype.addEventListener = function (type, handler) {
+  (this._listeners[type] = this._listeners[type] || []).push(handler);
+};
+Element.prototype.dispatchEvent = function (event) {
+  event.target = event.target || this;
+  var handlers = this._listeners[event.type] || [];
+  handlers.slice().forEach(function (handler) { handler(event); });
+  return true;
+};
 
-  closest(selector) {
-    let node = this;
-    while (node) {
-      if (matchesSimple(node, selector)) return node;
-      node = node.parentNode;
-    }
-    return null;
-  }
-
-  matches(selector) {
-    return matchesSimple(this, selector);
-  }
-
-  /* --- events --- */
-  addEventListener(type, handler) {
-    (this._listeners[type] = this._listeners[type] || []).push(handler);
-  }
-  dispatchEvent(event) {
-    event.target = event.target || this;
-    const handlers = this._listeners[event.type] || [];
-    handlers.slice().forEach(handler => handler(event));
-    return true;
-  }
-
-  /* --- focus --- */
-  focus() {
-    if (this.doc) this.doc.activeElement = this;
-  }
-  blur() {
-    if (this.doc && this.doc.activeElement === this) this.doc.activeElement = this.doc.body;
-  }
-  select() {}
-}
+/* --- focus --- */
+Element.prototype.focus = function () {
+  if (this.doc) this.doc.activeElement = this;
+};
+Element.prototype.blur = function () {
+  if (this.doc && this.doc.activeElement === this) this.doc.activeElement = this.doc.body;
+};
+Element.prototype.select = function () {};
 
 function matchesSimple(el, selector) {
   const sel = selector.trim();

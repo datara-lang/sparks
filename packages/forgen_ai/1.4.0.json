@@ -21,7 +21,7 @@
   ],
   "sample_usage": "use sparks/forgen_ai\n\nfn main() {\n    println(\"Using sparks/forgen_ai\")\n}",
   "readme": "",
-  "all_versions": [
+  "versions": [
     "1.4.0"
   ]
 }

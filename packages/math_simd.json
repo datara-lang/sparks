@@ -24,7 +24,7 @@
   ],
   "sample_usage": "use sparks/math_simd\n\nfn main() {\n    let p1 = math_simd.Vec4.new(1.0, 2.0, 3.0, 1.0)\n    let p2 = math_simd.Vec4.new(4.0, 5.0, 6.0, 1.0)\n    let d = p1.dot(p2)\n    println(d)\n}",
   "readme": "# math_simd\n\nHardware-accelerated SIMD vector and matrix math engine in Datara.\n\n## Overview\nBuilt directly on Datara's first-class SIMD types (`float4`, `int4`, and hardware `dot` instructions).\nDesigned for game physics, neural network embedding vector comparisons, and 3D graphics rendering pipelines.\n\n## Features\n- **`Vec4`**: 128-bit aligned 4-lane single precision vector with hardware SIMD operations.\n- **`Mat4`**: 4x4 transformation matrix with hardware dot-product transforms.\n- **Pure CPU Compute**: Requires 0 system capabilities.\n\n## Usage Example\n```datara\nuse sparks/math_simd\n\nfn main() {\n    let position = math_simd.Vec4.new(10.0, 20.0, 30.0, 1.0)\n    let model_matrix = math_simd.Mat4.identity()\n    let transformed = model_matrix.transform(position)\n    println(transformed.data)\n}\n```\n",
-  "all_versions": [
+  "versions": [
     "1.0.0"
   ]
 }

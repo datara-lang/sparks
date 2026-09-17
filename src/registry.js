@@ -97,7 +97,7 @@
   function getVersionList(pkg) {
     var raw = Array.isArray(pkg.versions) && pkg.versions.length
       ? pkg.versions
-      : (Array.isArray(pkg.all_versions) && pkg.all_versions.length ? pkg.all_versions : [pkg.latest_version]);
+      : [pkg.latest_version];
     return raw.slice().sort(util.compareVersionsDesc);
   }
 

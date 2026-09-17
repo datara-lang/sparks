@@ -23,7 +23,7 @@
   ],
   "sample_usage": "use sparks/http_router\n\nfn main() {\n    let mut r = http_router.Router.new()\n    r.add(\"GET\", \"/health\", 100)\n    let match_res = r.dispatch(\"GET\", \"/health\")\n    println(match_res.matched)\n}",
   "readme": "# http_router\n\nHigh-throughput, zero-allocation HTTP request route multiplexer for Datara services.\n\n## Highlights\n- **Fast Prefix Matching**: Dispatches requests by method and path without heap churn.\n- **Modular Routing**: Clean router builder pattern with handler ID mapping.\n- **Pure Compute Core**: Route matching requires 0 capabilities and can be safely evaluated in any isolated sandbox worker.\n\n## Example\n```datara\nuse sparks/http_router\n\nfn main() {\n    let mut router = http_router.Router.new()\n    router.add(\"GET\", \"/api/v1/health\", 1)\n    router.add(\"POST\", \"/api/v1/users\", 2)\n\n    let res = router.dispatch(\"GET\", \"/api/v1/health\")\n    if res.matched {\n        println(\"Route matched handler: \" + res.handler_id)\n    }\n}\n```\n",
-  "all_versions": [
+  "versions": [
     "1.0.0"
   ]
 }

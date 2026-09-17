@@ -22,7 +22,7 @@
   ],
   "sample_usage": "use sparks/toy_kv\n\nfn main() {\n    let mut db = toy_kv.ToyKV.new()\n    db.set(\"key\", \"val\")\n    println(db.get(\"key\"))\n}",
   "readme": "# toy_kv v0.9.0\n\nInitial in-memory prototype release of key-value storage in Datara.\n\n## Installation\n```bash\ndpm add sparks/toy_kv@0.9.0\n```\n",
-  "all_versions": [
+  "versions": [
     "1.0.0",
     "0.9.0"
   ]
