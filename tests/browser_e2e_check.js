@@ -49,13 +49,13 @@ function check(name, ok, detail) {
   // 1. Cards render
   await page.waitForSelector('[data-action="details"]', { timeout: 10000 });
   const cards = await page.locator('[data-action="details"]').count();
-  check('package cards render', cards === 6, `${cards} cards`);
+  check('package cards render', cards === 5, `${cards} cards`);
 
   // 2. Download badges show a real, sourced number
   const badges = await page.locator('.badge-downloads').count();
   const sources = await page.$$eval('.badge-downloads', els =>
     els.map(e => e.getAttribute('data-source')));
-  check('download badges render', badges === 6, `${badges} badges`);
+  check('download badges render', badges === 5, `${badges} badges`);
   check('every badge declares a source',
     sources.every(s => ['public', 'manifest', 'none'].includes(s)),
     [...new Set(sources)].join(','));

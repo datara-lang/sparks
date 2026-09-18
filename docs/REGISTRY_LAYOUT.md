@@ -85,7 +85,7 @@ agree wherever both appear.
 ### 5.2 No length-sharding on the name → path mapping
 
 crates.io shards by name length (`1/a`, `2/ab`, `3/a/abc`, `ab/cd/abcd`) so no single
-directory grows without bound. npm and Sparks use the name verbatim. At 6 packages this is
+directory grows without bound. npm and Sparks use the name verbatim. At 5 packages this is
 correct; past roughly 10k packages, a flat `packages/` directory becomes a filesystem and
 Git performance problem. Not a defect now — a documented scaling ceiling.
 
@@ -100,67 +100,24 @@ with no public record contradicting it. `index.json`'s `key_rotation` list is th
 mitigation; a Sigstore-style log would be the structural fix. This is a design tradeoff,
 not a bug.
 
-### 5.4 Compiled binaries in a source registry
-
-npm, crates.io, and PyPI ship source (wheels are a deliberate, platform-tagged exception).
-`sparks/forgen_ai@1.4.0` ships `main.exe` alongside 14 `.dtr` files, with no platform tag
-and no capability sidecar. See section 6.
-
-## 6. Known non-conformance: `sparks/forgen_ai@1.4.0`
-
-`forgen_ai` is the only package in the registry that is not built by
-`build_seed_packages.py`, and it is the only one that:
-
-- ships **no `capabilities.json`** inside its tarball, so
-  `registry.rs::install_sparks_manifest` skips the capability cross-check entirely
-  (the `E-SPARKS-002` comparison is guarded by `if let Some(sidecar) = ...`);
-- has **no `README.md`** member while all six others do;
-- has a **version manifest that lacks `all_versions`** while its root snapshot has it;
-- ships a **Windows `.exe`** and a generic scaffolded `sample_usage`;
-- declares `capabilities: []` while containing `governor.dtr`, `verifier.dtr`, and
-  `code_eval.dtr`.
-
-The consequence: a package that declares zero capabilities and ships no sidecar is
-**unverifiable**, and the client will install it without complaint. POLICY.md section 4
-requires the sidecar for packages requesting system access, and section 3.2 lists
-"undeclared privilege escalation" as a takedown criterion — but neither has teeth if a
-missing sidecar is silently tolerated.
-
-**Why this was not repaired in place.** POLICY.md section 2 makes a published version's
-manifest and tarball permanently immutable. Adding a sidecar changes the tarball bytes,
-which invalidates both the `sha256` digest and the ed25519 signature, which would break
-the immutability contract the registry is built on. The conforming remedy is to publish
-`sparks/forgen_ai@1.4.1` with a proper sidecar.
-
-**What was done instead.** `scripts/validate_registry.py` now rejects a missing sidecar
-unconditionally for any package not on an explicit grandfather list. `forgen_ai@1.4.0` is
-on that list, so CI stays green while the gap is printed on every run:
-
-```
-[WARN] NON-FATAL FINDINGS (tracked, not blocking):
-  ! sparks/forgen_ai v1.4.0: tarball lacks capabilities.json (grandfathered; declared
-    capabilities []). Cannot be repaired in place because published versions are
-    immutable - publish a new SemVer release with a sidecar to clear this.
-  ! sparks/forgen_ai: 'all_versions' present in root snapshot but missing from
-    packages/forgen_ai/1.4.0.json
-```
-
-## 7. Verification commands
+## 6. Verification commands
 
 ```bash
 python scripts/validate_registry.py          # 7 registry invariants + index/manifest parity
-python tests/test_registry_layout.py         # client-path conformance, 262 assertions
+python tests/test_registry_layout.py         # client-path conformance, 222 assertions
 python tests/test_ci_validation_fixtures.py  # 11 negative fixtures, all must be caught
 ```
 
-## 8. What is enforced now
+## 7. What is enforced now
 
 `validate_registry.py` gained four checks. All four are proven live by negative fixtures
 7–11 in `tests/test_ci_validation_fixtures.py`:
 
 1. **A tarball must carry `capabilities.json`.** Missing sidecar is an error unless the
    exact `(name, version)` pair is on the grandfather list. Closes the one-sided check
-   that only fired when the manifest declared capabilities.
+   that only fired when the manifest declared capabilities. The grandfather list is
+   currently **empty** — it exists as a safety valve for already-published, immutable
+   artifacts, and no package is on it.
 2. **`packages/<id>.json` and `packages/<id>/<latest>.json` must describe one artifact.**
    Byte-for-byte drift on any client-relevant field is an error; a field present in only
    one of the two is a warning.

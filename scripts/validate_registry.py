@@ -48,9 +48,10 @@ MAX_TARBALL_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 # The only conforming remedy is a new SemVer release. These entries are therefore
 # grandfathered as warnings rather than errors, so CI stays green while the gap
 # remains visible and auditable. New packages are never added here.
-GRANDFATHERED_MISSING_SIDECAR = {
-    ("sparks/forgen_ai", "1.4.0"),
-}
+#
+# The list is currently empty: every package in the registry ships a sidecar. The
+# mechanism is retained as a safety valve for already-published, immutable artifacts.
+GRANDFATHERED_MISSING_SIDECAR = set()
 
 # Collected non-fatal findings, printed after the fatal ones.
 WARNINGS = []

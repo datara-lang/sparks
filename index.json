@@ -22,7 +22,7 @@
       "reason": "Hardcoded test seed from initial repository release replaced by environment-derived key."
     }
   ],
-  "total_packages": 6,
+  "total_packages": 5,
   "updated_at": "2026-09-13T16:05:42+03:00",
   "packages": [
     {
@@ -168,33 +168,6 @@
         "0.9.0"
       ],
       "size_bytes": 1635,
-      "downloads": 0,
-      "likes": 0
-    },
-    {
-      "name": "sparks/forgen_ai",
-      "raw_id": "forgen_ai",
-      "latest_version": "1.4.1",
-      "description": "Official AI Developer Companion and Epistemic Engine for Datara",
-      "author": "Datara Core Team <core@datara.dev>",
-      "license": "MIT OR Apache-2.0",
-      "capabilities": [],
-      "tags": [
-        "datara",
-        "forgen_ai"
-      ],
-      "tarball_url": "tarballs/forgen_ai-1.4.1.tar",
-      "sha256": "f676a4951c6ec7869a6aec05705f049e8fe49ceb87674e94c9cd1f9aa72bf9d7",
-      "public_key": "1e5b98204a627f872e09e8fb32e511abdc714b0f1b720d809b5e43e1ea97925d",
-      "signature": "189a8944af4014e2fcd9070c35584ea092e638948964c3140aedd9c184faef91d21d816864900fa7d4828aef4ba6e4a664499970bd91dae8f97b0bd6f885bc09",
-      "key_id": "datara-core-2026-v2",
-      "sample_usage": "use sparks/forgen_ai\n\nfn main() {\n    println(\"Using sparks/forgen_ai\")\n}",
-      "readme": "",
-      "versions": [
-        "1.4.1",
-        "1.4.0"
-      ],
-      "size_bytes": 528290,
       "downloads": 0,
       "likes": 0
     }

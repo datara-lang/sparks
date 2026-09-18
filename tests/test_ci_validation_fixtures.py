@@ -163,20 +163,31 @@ def test_fixture_7_missing_sidecar_rejected():
 def test_fixture_8_grandfathered_sidecar_is_warning_not_error():
     """An already-published, immutable artifact is warned about, not failed.
 
-    POLICY.md section 2 forbids mutating a published version, so sparks/forgen_ai
-    1.4.0 cannot be repaired in place. It must stay visible without blocking CI.
+    POLICY.md section 2 forbids mutating a published version, so a sidecar-less
+    release cannot be repaired in place. It must stay visible without blocking CI.
+    The grandfather list is empty in a healthy registry, so this fixture registers a
+    synthetic identity for the duration of the test and restores the set afterwards.
     """
     import validate_registry as vr
     schema = load_json(os.path.join(ROOT, "schema.json"))
     manifest, tar_bytes = _tar_without_sidecar()
-    manifest["name"] = "sparks/forgen_ai"
-    manifest["version"] = "1.4.0"
-    vr.WARNINGS.clear()
-    errs = validate_package_entry(manifest, tar_bytes, schema, "sparks/forgen_ai v1.4.0")
-    assert not any("lacks capabilities.json" in e for e in errs), \
-        f"Grandfathered package must not be a hard error, got {errs}"
-    assert any("grandfathered" in w for w in vr.WARNINGS), \
-        f"Grandfathered package must still be reported as a warning, got {vr.WARNINGS}"
+    manifest["name"] = "sparks/fixture_grandfathered"
+    manifest["version"] = "1.0.0"
+
+    saved = set(vr.GRANDFATHERED_MISSING_SIDECAR)
+    vr.GRANDFATHERED_MISSING_SIDECAR.add(("sparks/fixture_grandfathered", "1.0.0"))
+    try:
+        vr.WARNINGS.clear()
+        errs = validate_package_entry(
+            manifest, tar_bytes, schema, "sparks/fixture_grandfathered v1.0.0"
+        )
+        assert not any("lacks capabilities.json" in e for e in errs), \
+            f"Grandfathered package must not be a hard error, got {errs}"
+        assert any("grandfathered" in w for w in vr.WARNINGS), \
+            f"Grandfathered package must still be reported as a warning, got {vr.WARNINGS}"
+    finally:
+        vr.GRANDFATHERED_MISSING_SIDECAR.clear()
+        vr.GRANDFATHERED_MISSING_SIDECAR.update(saved)
     print("[PASS] Fixture 8: grandfathered missing sidecar warned, not failed")
 
 

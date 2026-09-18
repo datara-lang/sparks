@@ -31,7 +31,6 @@ The registry currently indexes the following first-party releases. This table mi
 | **`sparks/http_router`** | `1.0.0` | `None (Pure Compute)` | Zero-allocation radix-style path dispatcher and HTTP method multiplexer |
 | **`sparks/lockstep_engine`** | `1.0.0` | `None (Pure Compute)` | Deterministic tick simulation state container and input queue |
 | **`sparks/toy_kv`** | `1.0.0` | `Capability<FileRead>`, `Capability<FileWrite>` | Capability-governed append-only persistent storage engine |
-| **`sparks/forgen_ai`** | `1.4.0` | `None (Pure Compute)` | Official AI developer companion and epistemic engine for Datara |
 
 > [!IMPORTANT]
 > **Cryptographic Notice:** The official packages above are signed with the Datara Core key (`datara-core-2026-v2`). **Bootstrapping keys are for demonstration and first-party releases.** In production, every package author must generate and safeguard their own private Ed25519 signing key locally. The registry never asks for or stores private keys. See [docs/KEY_MANAGEMENT.md](docs/KEY_MANAGEMENT.md) for instructions on key generation, signing, and rotation.
@@ -124,10 +123,8 @@ Sparks serves structured JSON manifests following **Schema 1**:
 against the registry root, then verifying `sha256` and the ed25519 signature before
 extraction. `index.json` is not on that path - it exists to drive the web catalog.
 
-See [docs/REGISTRY_LAYOUT.md](docs/REGISTRY_LAYOUT.md) for the full layout, how it
-compares to npm / crates.io / PyPI / the Go module proxy / Maven Central, and the one
-known non-conforming artifact (`sparks/forgen_ai@1.4.0` ships no `capabilities.json`
-sidecar and is grandfathered because published versions are immutable).
+See [docs/REGISTRY_LAYOUT.md](docs/REGISTRY_LAYOUT.md) for the full layout and how it
+compares to npm / crates.io / PyPI / the Go module proxy / Maven Central.
 
 ---
 
