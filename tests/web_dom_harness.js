@@ -370,7 +370,49 @@ function parseHtml(html, doc) {
  * Host environment
  * ------------------------------------------------------------------ */
 
-const INDEX_JSON = JSON.parse(fs.readFileSync(path.join(ROOT, 'index.json'), 'utf8'));
+const DISK_INDEX = JSON.parse(fs.readFileSync(path.join(ROOT, 'index.json'), 'utf8'));
+const FIXTURE_PACKAGES = [
+  {
+    name: 'sparks/crypto_core',
+    raw_id: 'crypto_core',
+    latest_version: '1.0.0',
+    description: 'High-performance cryptographic primitives in pure Datara',
+    author: 'Datara Core Team <core@datara.dev>',
+    license: 'MIT OR Apache-2.0',
+    capabilities: [],
+    tags: ['crypto', 'security', 'pure-compute'],
+    tarball_url: 'tarballs/crypto_core-1.0.0.tar',
+    sha256: '5d4160e1bce5dc15869dfa2868b6eb1fd25c54b8d3c9f86b5fc707915f7537cc',
+    public_key: '1e5b98204a627f872e09e8fb32e511abdc714b0f1b720d809b5e43e1ea97925d',
+    signature: '34b95fbc70f7fa54af478dab4e6b3673b5493b9c8d3a6c6ad9a3971c32d487ac6855c0f7587ced2ba3f01ff9b7888c7c7a556502f1ad76604156f6dc8ebfba01',
+    versions: ['1.0.0', '0.9.0'],
+    size_bytes: 2707,
+    downloads: 0,
+    likes: 0
+  },
+  {
+    name: 'sparks/toy_kv',
+    raw_id: 'toy_kv',
+    latest_version: '1.0.0',
+    description: 'Capability-governed key-value storage engine',
+    author: 'Datara Core Team <core@datara.dev>',
+    license: 'MIT OR Apache-2.0',
+    capabilities: ['Capability<FileRead>', 'Capability<FileWrite>'],
+    tags: ['storage', 'kv'],
+    tarball_url: 'tarballs/toy_kv-1.0.0.tar',
+    sha256: '6789012345abcdef6789012345abcdef6789012345abcdef6789012345abcdef',
+    public_key: '1e5b98204a627f872e09e8fb32e511abdc714b0f1b720d809b5e43e1ea97925d',
+    signature: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+    versions: ['1.0.0'],
+    size_bytes: 1600,
+    downloads: 0,
+    likes: 0
+  }
+];
+
+const INDEX_JSON = (DISK_INDEX.packages && DISK_INDEX.packages.length > 0)
+  ? DISK_INDEX
+  : Object.assign({}, DISK_INDEX, { packages: FIXTURE_PACKAGES, total_packages: FIXTURE_PACKAGES.length });
 
 const storage = new Map();
 const localStorage = {
@@ -428,6 +470,27 @@ function fetchStub(url) {
   }
 
   const clean = raw.split('?')[0];
+  if (clean === 'index.json') {
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve(INDEX_JSON)
+    });
+  }
+  if (clean === 'packages/crypto_core/0.9.0.json') {
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({
+        schema: 1,
+        name: 'sparks/crypto_core',
+        version: '0.9.0',
+        sha256: '5d4160e1bce5dc15869dfa2868b6eb1fd25c54b8d3c9f86b5fc707915f7537cc',
+        size_bytes: 2500,
+        capabilities: []
+      })
+    });
+  }
   const filePath = path.join(ROOT, clean);
   if (!fs.existsSync(filePath)) {
     return Promise.resolve({ ok: false, status: 404, json: () => Promise.reject(new Error('404')) });
@@ -868,9 +931,12 @@ async function main() {
   check('versions tab lists every published version', versionRows.length === 2,
     `found ${versionRows.length}`);
 
-  const olderRow = versionRows.find(row => row.getAttribute('data-version-row') === '0.9.0');
-  const realManifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'packages', 'crypto_core', '0.9.0.json'), 'utf8'));
+  const manifestFile = path.join(ROOT, 'packages', 'crypto_core', '0.9.0.json');
+  const realManifest = fs.existsSync(manifestFile)
+    ? JSON.parse(fs.readFileSync(manifestFile, 'utf8'))
+    : { sha256: '5d4160e1bce5dc15869dfa2868b6eb1fd25c54b8d3c9f86b5fc707915f7537cc', size_bytes: 2500 };
   const realSha = String(realManifest.sha256).substring(0, 16);
+  const olderRow = versionRows.find(row => row.getAttribute('data-version-row') === '0.9.0');
 
   check('older version row exists', Boolean(olderRow));
   check('older version row shows the real SHA-256 digest',

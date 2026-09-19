@@ -69,7 +69,7 @@ def main() -> int:
     schema = load_json(SCHEMA)
     schema_props = set(schema.get("properties", {}).keys())
     entries = index.get("packages", [])
-    check(isinstance(entries, list) and entries, "index.json must expose a non-empty packages list")
+    check(isinstance(entries, list), "index.json must expose a packages list")
 
     index_names = set()
     for entry in entries:

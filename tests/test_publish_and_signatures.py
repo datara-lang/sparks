@@ -72,15 +72,38 @@ def test_spark_publish_e2e():
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
 
+def _create_signed_test_package():
+    priv = ed25519.Ed25519PrivateKey.generate()
+    pub_hex = priv.public_key().public_bytes_raw().hex()
+    files = {
+        "src/main.dtr": "fn main() { println(42) }\n",
+        "README.md": "# Test\n",
+        "capabilities.json": '{"capabilities": []}'
+    }
+    tar_bytes = build_deterministic_tar(files)
+    sha_hex = hashlib.sha256(tar_bytes).hexdigest()
+    sig_hex = priv.sign(tar_bytes).hex()
+    manifest = {
+        "schema": 1,
+        "name": "sparks/tamper_test",
+        "version": "1.0.0",
+        "description": "Tamper test package",
+        "author": "Test Author <test@datara.dev>",
+        "license": "MIT",
+        "tarball_url": "tarballs/tamper_test-1.0.0.tar",
+        "sha256": sha_hex,
+        "public_key": pub_hex,
+        "signature": sig_hex,
+        "capabilities": []
+    }
+    return manifest, tar_bytes
+
 def test_tamper_sha256_detection():
     schema = load_json(os.path.join(ROOT, "schema.json"))
-    raw_id = "crypto_core"
-    m_path = os.path.join(ROOT, "packages", raw_id, "1.0.0.json")
-    tar_path = os.path.join(ROOT, "tarballs", f"{raw_id}-1.0.0.tar")
-    manifest = load_json(m_path)
-    with open(tar_path, "rb") as f:
-        tar_bytes = bytearray(f.read())
-        
+    raw_id = "tamper_test"
+    manifest, tar_bytes = _create_signed_test_package()
+    tar_bytes = bytearray(tar_bytes)
+
     # Flip 1 byte
     tar_bytes[100] ^= 0xFF
     errs = validate_package_entry(manifest, bytes(tar_bytes), schema, raw_id)
@@ -89,18 +112,15 @@ def test_tamper_sha256_detection():
 
 def test_tamper_signature_detection():
     schema = load_json(os.path.join(ROOT, "schema.json"))
-    raw_id = "crypto_core"
-    m_path = os.path.join(ROOT, "packages", raw_id, "1.0.0.json")
-    tar_path = os.path.join(ROOT, "tarballs", f"{raw_id}-1.0.0.tar")
-    manifest = dict(load_json(m_path))
-    with open(tar_path, "rb") as f:
-        tar_bytes = f.read()
-        
+    raw_id = "tamper_test"
+    manifest, tar_bytes = _create_signed_test_package()
+    manifest = dict(manifest)
+
     # Corrupt signature hex by modifying one character
     sig = list(manifest["signature"])
     sig[10] = '0' if sig[10] != '0' else '1'
     manifest["signature"] = "".join(sig)
-    
+
     errs = validate_package_entry(manifest, tar_bytes, schema, raw_id)
     assert any("ed25519 package verification failed" in e for e in errs), "Corrupted signature must be rejected by ed25519 verification!"
     print("[PASS] test_tamper_signature_detection")

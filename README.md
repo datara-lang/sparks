@@ -22,18 +22,10 @@ Sparks is the official decentralized package registry for the **Datara** program
 
 ## Official Packages
 
-The registry currently indexes the following first-party releases. This table mirrors `index.json`; `dpm` treats every package identically regardless of origin.
-
-| Package | Version | Capabilities | Description |
-| :--- | :---: | :---: | :--- |
-| **`sparks/crypto_core`** | `1.0.0` | `None (Pure Compute)` | Constant-time slice comparison, bitwise rotation, ChaCha quarter-round |
-| **`sparks/math_simd`** | `1.0.0` | `None (Pure Compute)` | Hardware-accelerated `float4`/`int4` vectors, dot product, 4x4 transform matrices |
-| **`sparks/http_router`** | `1.0.0` | `None (Pure Compute)` | Zero-allocation radix-style path dispatcher and HTTP method multiplexer |
-| **`sparks/lockstep_engine`** | `1.0.0` | `None (Pure Compute)` | Deterministic tick simulation state container and input queue |
-| **`sparks/toy_kv`** | `1.0.0` | `Capability<FileRead>`, `Capability<FileWrite>` | Capability-governed append-only persistent storage engine |
+The registry is currently clean and ready for package publishing. Once packages are merged into `packages/`, they appear here and in `index.json` automatically.
 
 > [!IMPORTANT]
-> **Cryptographic Notice:** The official packages above are signed with the Datara Core key (`datara-core-2026-v2`). **Bootstrapping keys are for demonstration and first-party releases.** In production, every package author must generate and safeguard their own private Ed25519 signing key locally. The registry never asks for or stores private keys. See [docs/KEY_MANAGEMENT.md](docs/KEY_MANAGEMENT.md) for instructions on key generation, signing, and rotation.
+> **Cryptographic Notice:** In production, every package author must generate and safeguard their own private Ed25519 signing key locally. The registry never asks for or stores private keys. See [docs/KEY_MANAGEMENT.md](docs/KEY_MANAGEMENT.md) for instructions on key generation, signing, and rotation.
 
 ---
 
@@ -41,23 +33,20 @@ The registry currently indexes the following first-party releases. This table mi
 
 ### 1. Add a Package to Your Datara Project
 ```bash
-dpm add sparks/crypto_core
+dpm add sparks/<package_name>
 ```
 
 ### 2. Verify Package Integrity & ed25519 Signatures
 ```bash
-dpm verify sparks/crypto_core
+dpm verify sparks/<package_name>
 ```
 
 ### 3. Use in Code (`src/main.dtr`)
 ```datara
-use sparks/crypto_core
+use sparks/<package_name>
 
 fn main() {
-    let a: [Byte] = [0xAA, 0xBB]
-    let b: [Byte] = [0xAA, 0xBB]
-    let is_eq = crypto_core.constant_time_eq(a, b)
-    println(is_eq)
+    println("Using package from Sparks registry")
 }
 ```
 
@@ -100,7 +89,7 @@ git clone https://github.com/datara-lang/sparks.git /var/sparks
 export DATARA_SPARKS_REGISTRY="file:///var/sparks"
 
 # 3. dpm installs and cryptographically verifies packages completely offline
-dpm add sparks/crypto_core
+dpm add sparks/<package_name>
 ```
 
 ---

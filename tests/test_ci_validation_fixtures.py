@@ -201,12 +201,50 @@ def _temp_registry_copy():
     return tmp, dest
 
 
+def _add_dummy_package(dest):
+    """Add a minimal valid package to the temp registry for drift/disagreement tests."""
+    pkg_name = "sparks/fixture_dummy"
+    raw_id = "fixture_dummy"
+    version = "1.0.0"
+    manifest, tar_bytes, priv = get_valid_base()
+    manifest["name"] = pkg_name
+    manifest["tarball_url"] = f"tarballs/{raw_id}-{version}.tar"
+    manifest["signature"] = priv.sign(tar_bytes).hex()
+
+    tar_path = os.path.join(dest, "tarballs", f"{raw_id}-{version}.tar")
+    with open(tar_path, "wb") as f:
+        f.write(tar_bytes)
+
+    pkg_dir = os.path.join(dest, "packages", raw_id)
+    os.makedirs(pkg_dir, exist_ok=True)
+    with open(os.path.join(pkg_dir, f"{version}.json"), "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+
+    with open(os.path.join(dest, "packages", f"{raw_id}.json"), "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+
+    index_path = os.path.join(dest, "index.json")
+    with open(index_path, "r", encoding="utf-8") as f:
+        index_data = json.load(f)
+    idx_entry = dict(manifest)
+    idx_entry["raw_id"] = raw_id
+    idx_entry["latest_version"] = version
+    idx_entry["versions"] = [version]
+    index_data["packages"] = [idx_entry]
+    index_data["total_packages"] = 1
+    with open(index_path, "w", encoding="utf-8") as f:
+        json.dump(index_data, f, indent=2)
+
+    return raw_id
+
+
 def test_fixture_9_root_and_exact_manifest_drift():
     """packages/<id>.json and packages/<id>/<latest>.json must describe one artifact."""
     import validate_registry as vr
     tmp, dest = _temp_registry_copy()
     try:
-        root_path = os.path.join(dest, "packages", "crypto_core.json")
+        raw_id = _add_dummy_package(dest)
+        root_path = os.path.join(dest, "packages", f"{raw_id}.json")
         data = load_json(root_path)
         data["description"] = "drifted description"
         with open(root_path, "w", encoding="utf-8") as f:
@@ -224,10 +262,11 @@ def test_fixture_10_index_disagrees_with_manifest():
     import validate_registry as vr
     tmp, dest = _temp_registry_copy()
     try:
+        raw_id = _add_dummy_package(dest)
         index_path = os.path.join(dest, "index.json")
         data = load_json(index_path)
         for entry in data["packages"]:
-            if entry["name"] == "sparks/crypto_core":
+            if entry["name"] == f"sparks/{raw_id}":
                 entry["sha256"] = "0" * 64
         with open(index_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
@@ -244,9 +283,10 @@ def test_fixture_11_index_version_list_vs_disk():
     import validate_registry as vr
     tmp, dest = _temp_registry_copy()
     try:
-        stray = os.path.join(dest, "packages", "crypto_core", "9.9.9.json")
+        raw_id = _add_dummy_package(dest)
+        stray = os.path.join(dest, "packages", raw_id, "9.9.9.json")
         with open(stray, "w", encoding="utf-8") as f:
-            json.dump({"schema": 1, "name": "sparks/crypto_core", "version": "9.9.9"}, f)
+            json.dump({"schema": 1, "name": f"sparks/{raw_id}", "version": "9.9.9"}, f)
         errs = vr.validate_full_registry(dest)
         assert any("index.json advertises versions" in e for e in errs), \
             f"Expected index/disk version-list mismatch to be caught, got {errs}"
